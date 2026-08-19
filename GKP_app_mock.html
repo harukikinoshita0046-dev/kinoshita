@@ -1,0 +1,647 @@
+<meta charset="utf-8">
+<title>GKP × 早川友基 アプリ画面モック</title>
+<style>
+  :root{
+    --ground:#F9F9F9; --ground-2:#EEF2F8; --panel:#FFFFFF;
+    --text:#0B233F; --text-2:#41556F; --text-3:#7C8DA3;
+    --line:#D9E2EE;
+    --accent:#004EBC; --accent-soft:#E7EFFB;
+    --ink:#0B233F; --ink-2:#12305A;
+    --good:#004EBC; --warn:#C08419; --lock:#9AA7B7;
+    --shadow:0 24px 60px -28px rgba(11,35,63,.4);
+    --sel-bg:#0B233F; --sel-fg:#FFFFFF;
+    --r:14px;
+    --font:"Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",-apple-system,BlinkMacSystemFont,sans-serif;
+    --font-en:Copperplate,"Copperplate Gothic Light","Trajan Pro",Georgia,serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --ground:#0B233F; --ground-2:#0E2B4B; --panel:#12314F;
+      --text:#EEF3F9; --text-2:#9FB4CC; --text-3:#7C8DA3;
+      --line:#1D3E63; --accent:#3D8BFF; --accent-soft:#0F2C4E;
+      --shadow:0 24px 70px -28px rgba(0,0,0,.8);
+      --sel-bg:#EEF3F9; --sel-fg:#0B233F;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0B233F; --ground-2:#0E2B4B; --panel:#12314F;
+    --text:#EEF3F9; --text-2:#9FB4CC; --text-3:#7C8DA3;
+    --line:#1D3E63; --accent:#3D8BFF; --accent-soft:#0F2C4E;
+    --shadow:0 24px 70px -28px rgba(0,0,0,.8);
+    --sel-bg:#EEF3F9; --sel-fg:#0B233F;
+  }
+  :root[data-theme="light"]{
+    --ground:#F9F9F9; --ground-2:#EEF2F8; --panel:#FFFFFF;
+    --text:#0B233F; --text-2:#41556F; --text-3:#7C8DA3;
+    --line:#D9E2EE; --accent:#004EBC; --accent-soft:#E7EFFB;
+    --shadow:0 24px 60px -28px rgba(11,35,63,.4);
+    --sel-bg:#0B233F; --sel-fg:#FFFFFF;
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--text);font-family:var(--font);
+       -webkit-font-smoothing:antialiased;line-height:1.7;}
+  .wrap{max-width:1180px;margin:0 auto;padding:clamp(28px,5vw,64px) clamp(18px,4vw,40px) 80px;}
+
+  /* ---------- page header ---------- */
+  .eyebrow{font-family:var(--font-en);font-size:15px;letter-spacing:.13em;color:var(--accent);font-weight:600;margin:0 0 14px}
+  h1{font-size:clamp(28px,4.2vw,42px);line-height:1.25;margin:0 0 12px;letter-spacing:-.01em;text-wrap:balance}
+  .lede{margin:0;max-width:62ch;color:var(--text-2);font-size:15px}
+  .hint{display:inline-flex;align-items:center;gap:8px;margin-top:22px;padding:7px 13px;border-radius:999px;
+        background:var(--accent-soft);color:var(--accent);font-size:12.5px;font-weight:700}
+  .hint span{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 2.2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  @media (prefers-reduced-motion:reduce){.hint span{animation:none}}
+
+  /* ---------- chips ---------- */
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:34px 0 26px}
+  .chip{appearance:none;border:1px solid var(--line);background:var(--panel);color:var(--text-2);
+        font-family:inherit;font-size:12.5px;font-weight:600;padding:7px 14px;border-radius:999px;cursor:pointer;
+        transition:border-color .15s,color .15s,background .15s}
+  .chip:hover{border-color:var(--accent);color:var(--accent)}
+  .chip[aria-selected="true"]{background:var(--sel-bg);border-color:var(--sel-bg);color:var(--sel-fg)}
+  .chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  /* ---------- stage layout ---------- */
+  .stage{display:grid;grid-template-columns:minmax(0,390px) minmax(0,1fr);gap:clamp(24px,4vw,56px);align-items:start}
+  @media (max-width:860px){.stage{grid-template-columns:1fr}}
+
+  /* ---------- phone ---------- */
+  .phone{width:390px;max-width:100%;border-radius:44px;background:var(--ink);padding:11px;box-shadow:var(--shadow);
+         border:1px solid var(--line);position:relative}
+  .screen{position:relative;width:100%;aspect-ratio:390/812;border-radius:34px;overflow:hidden;background:#F5F7FB;
+          display:flex;flex-direction:column;color:#0B233F;font-size:13px;line-height:1.6}
+  .notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:112px;height:26px;background:var(--ink);
+         border-radius:999px;z-index:5}
+  .statusbar{flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;padding:12px 22px 4px;
+             font-size:11.5px;font-weight:700;color:#0B233F}
+  .stage-badge,.filters span,.label{font-feature-settings:"palt"}
+  .apphead{flex:0 0 auto;padding:6px 18px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .apphead h2{margin:0;font-size:19px;letter-spacing:-.01em}
+  .apphead .sub{font-size:11.5px;color:#7C8DA3;margin:2px 0 0}
+  .body{flex:1 1 auto;overflow-y:auto;overscroll-behavior:contain;padding:0 18px 12px;display:flex;flex-direction:column;gap:11px;scrollbar-width:none}
+  .body::-webkit-scrollbar{display:none}
+  .mini .body{overflow:hidden}
+  .tabbar{flex:0 0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;padding:9px 8px 18px;
+          background:#fff;border-top:1px solid #E4EAF1}
+  .tabbar button{appearance:none;border:0;background:none;font-family:inherit;font-size:10px;font-weight:700;
+                 color:#9AA7B7;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:2px 0}
+  .tabbar button[aria-current="true"]{color:var(--accent)}
+  .tabbar svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+  /* ---------- in-screen components ---------- */
+  .card{background:#fff;border-radius:14px;padding:13px 14px;border:1px solid #E4EBF4}
+  .card.tap{cursor:pointer;transition:transform .12s ease, box-shadow .12s ease}
+  .card.tap:hover{transform:translateY(-1px);box-shadow:0 8px 20px -12px rgba(11,35,63,.3)}
+  .card.dark{background:#0B233F;border-color:#0B233F;color:#fff}
+  .card.accent{background:#004EBC;border-color:#004EBC;color:#fff}
+  .label{font-size:10.5px;font-weight:700;letter-spacing:.06em;color:#7C8DA3;margin:0 0 6px}
+  .card.dark .label,.card.accent .label{color:rgba(255,255,255,.72)}
+  .ttl{font-size:14.5px;font-weight:700;margin:0;letter-spacing:-.01em}
+  .meta{font-size:11.5px;color:#7C8DA3;margin:3px 0 0}
+  .card.dark .meta{color:#9FB4CC}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .pill{font-size:10px;font-weight:800;padding:3px 8px;border-radius:999px;white-space:nowrap}
+  .pill.done{background:#E7EFFB;color:#004EBC}
+  .pill.todo{background:#FFF6C2;color:#6B5D00}
+  .pill.lock{background:#EEF1F5;color:#8B99AA}
+  .pill.new{background:#FFF533;color:#0B233F}
+  .btn{display:block;width:100%;text-align:center;background:#004EBC;color:#fff;border:0;border-radius:12px;
+       padding:12px;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer}
+  .btn.ghost{background:#fff;color:#0B233F;border:1px solid #D9E2EE}
+  .num{font-variant-numeric:tabular-nums}
+  .bar{height:6px;border-radius:99px;background:#E4EBF4;overflow:hidden}
+  .bar i{display:block;height:100%;background:#004EBC;border-radius:99px}
+  .divider{height:1px;background:#EEF3F9;margin:2px 0}
+  .listrow{display:flex;gap:10px;align-items:flex-start}
+  .dot{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:#F9F9F9;color:#41556F;font-size:11px;
+       font-weight:800;display:flex;align-items:center;justify-content:center}
+  .scroll{overflow:hidden;display:flex;flex-direction:column;gap:11px}
+  .seg{display:grid;grid-template-columns:1fr 1fr;background:#EDF2F8;border-radius:10px;padding:3px;gap:3px}
+  .seg span{text-align:center;font-size:11.5px;font-weight:700;padding:6px 4px;border-radius:8px;color:#41556F;cursor:pointer}
+  .seg span.on{background:#fff;color:#0B233F;box-shadow:0 1px 3px rgba(11,35,63,.12)}
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+  .cal .dow{font-size:8.5px;color:#7C8DA3;text-align:center;font-weight:800;padding-bottom:1px}
+  .cal .d{aspect-ratio:1;border-radius:7px;background:#F5F7FB;display:flex;flex-direction:column;
+          align-items:center;justify-content:center;gap:2px;font-size:10px;font-weight:700;color:#0B233F}
+  .cal .d.empty{background:transparent}
+  .cal .d.pick{background:#004EBC;color:#fff}
+  .cal .d.today{outline:1.5px solid #004EBC;outline-offset:-1.5px}
+  .cal .dots{display:flex;gap:2px;height:4px;align-items:center}
+  .cal .dots i{width:4px;height:4px;border-radius:50%}
+  .legend{display:flex;gap:11px;flex-wrap:wrap;font-size:10px;color:#41556F;font-weight:700}
+  .legend span{display:flex;align-items:center;gap:4px}
+  .legend b{width:7px;height:7px;border-radius:50%;display:block}
+  .filters{display:flex;gap:6px;overflow:hidden;flex-wrap:wrap}
+  .filters span{font-size:10.5px;font-weight:700;padding:5px 10px;border-radius:999px;background:#EEF3F9;color:#41556F}
+  .filters span.on{background:#0B233F;color:#fff}
+  .thumb{position:relative;border-radius:12px;overflow:hidden;background:linear-gradient(160deg,#12305A,#0B233F);
+         aspect-ratio:16/9;display:flex;align-items:center;justify-content:center}
+  .thumb .play{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;
+               justify-content:center;color:#0B233F;font-size:13px}
+  .thumb .stamp{position:absolute;left:9px;bottom:8px;font-size:10px;font-weight:800;color:#fff;letter-spacing:.04em}
+  .qr{width:150px;height:150px;margin:0 auto;display:block}
+  .cert{background:linear-gradient(165deg,#0B233F,#154070);color:#fff;border-radius:14px;padding:16px;text-align:center}
+  .cert .sig{font-size:11px;color:#9FB4CC;margin-top:12px}
+
+  /* ---------- annotation panel ---------- */
+  .notes{position:sticky;top:24px}
+  .stage-badge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.08em;padding:5px 11px;
+               border-radius:999px;background:var(--sel-bg);color:var(--sel-fg)}
+  .phase-badge{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.06em;padding:5px 11px;
+               border-radius:999px;background:var(--ground-2);color:var(--text-2);margin-left:6px}
+  .phase-badge.now{background:#FFF533;color:#0B233F}
+  .notes h3{font-size:clamp(21px,2.6vw,27px);margin:16px 0 10px;letter-spacing:-.01em;text-wrap:balance}
+  .notes p.desc{margin:0 0 22px;color:var(--text-2);font-size:14.5px;max-width:56ch}
+  .solves{border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direction:column;gap:14px}
+  .solves .label{color:var(--text-3);margin:0}
+  .solve{display:flex;gap:12px;align-items:flex-start}
+  .solve b{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:11px;
+           display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .solve p{margin:0;font-size:14px;color:var(--text-2)}
+  .solve p em{font-style:normal;color:var(--text);font-weight:700}
+
+  /* ---------- overview grid ---------- */
+  .sect{margin-top:clamp(56px,8vw,96px)}
+  .sect h2{font-size:clamp(20px,2.4vw,26px);margin:0 0 6px;letter-spacing:-.01em}
+  .sect .sub{margin:0 0 28px;color:var(--text-2);font-size:14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(186px,1fr));gap:26px 20px}
+  .mini{appearance:none;border:0;background:none;padding:0;font-family:inherit;cursor:pointer;text-align:left;display:block}
+  .mini .holder{width:100%;overflow:hidden;border-radius:20px}
+  .mini .phone{transform-origin:top left;pointer-events:none;max-width:none;width:412px}
+  .mini figcaption{margin-top:11px}
+  .mini .cap{font-size:13px;font-weight:700;color:var(--text)}
+  .mini .capsub{font-size:11.5px;color:var(--text-3)}
+  .mini:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:6px}
+
+  .foot{margin-top:clamp(56px,8vw,90px);border-top:1px solid var(--line);padding-top:22px;color:var(--text-3);font-size:12.5px}
+  .foot b{color:var(--text-2)}
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">GOAL KEEPER PROJECT × 早川友基</p>
+  <h1>統合アプリ 画面モック</h1>
+  <p class="lede">全国のクリニック参加者をその場で会員化し、週1本の配信と添削で関係を切らさず、有料オンラインへ運ぶ。ホーム／トレーニング／動画／イベント参加／マイページの5タブ構成です。デザインの確定版ではなく、機能と導線の合意を取るためのモックです。</p>
+  <p class="hint"><span></span>画面はタップで操作できます</p>
+
+  <div class="chips" role="tablist" id="chips"></div>
+
+  <div class="stage">
+    <div>
+      <div class="phone" id="hero-phone">
+        <div class="notch"></div>
+        <div class="screen" id="hero-screen"></div>
+      </div>
+    </div>
+    <div class="notes">
+      <span class="stage-badge" id="n-stage"></span> <span class="phase-badge" id="n-phase"></span>
+      <h3 id="n-title"></h3>
+      <p class="desc" id="n-desc"></p>
+      <div class="solves">
+        <p class="label">この画面が担うこと</p>
+        <div id="n-solves"></div>
+      </div>
+    </div>
+  </div>
+
+  <section class="sect">
+    <h2>全画面一覧</h2>
+    <p class="sub">クリックすると上のモックで開きます。</p>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <p class="foot">
+    <b>前提</b>：会員登録と決済はWebで完結させ、アプリはログインと視聴・提出に限定します（iOSのアプリ内課金手数料と、既存のStripe決済を両立させるため）。アカウントは保護者名義を主軸に、選手はその配下のプロフィールとして持ちます。表示している選手名・イベント・数値はすべてサンプルです。<b>12月の関東クリニックでのローンチ時点</b>は受付・会員登録・記録まわりに絞り、課金と配信まわりは1月以降に開放する想定です。
+  </p>
+</div>
+
+<script>
+(function(){
+  const ICONS = {
+    home:'<svg viewBox="0 0 24 24"><path d="M3 10.5 12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>',
+    train:'<svg viewBox="0 0 24 24"><path d="M6.5 8v8M17.5 8v8M3.5 10.5v3M20.5 10.5v3M6.5 12h11"/></svg>',
+    video:'<svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="m16 12 5-3.2v6.4z"/></svg>',
+    ev:'<svg viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>',
+    my:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg>'
+  };
+
+  function qr(seed){
+    let s=seed, out='';
+    const rnd=()=>{s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff;};
+    const N=25;
+    for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+      const corner=(x<7&&y<7)||(x>N-8&&y<7)||(x<7&&y>N-8);
+      if(corner) continue;
+      if(rnd()>0.52) out+='<rect x="'+x+'" y="'+y+'" width="1" height="1"/>';
+    }
+    const eye=(x,y)=>'<path d="M'+x+' '+y+'h7v7h-7z" fill="none" stroke="#0B233F" stroke-width="1"/><rect x="'+(x+2)+'" y="'+(y+2)+'" width="3" height="3"/>';
+    return '<svg class="qr" viewBox="0 0 25 25" fill="#0B233F" aria-label="受付用QRコード">'+out+eye(0,0)+eye(18,0)+eye(0,18)+'</svg>';
+  }
+
+  function radar(vals, prev){
+    const cx=90, cy=86, R=64, n=5;
+    const pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/n;return [cx+Math.cos(a)*R*v, cy+Math.sin(a)*R*v];};
+    const poly=a=>a.map((v,i)=>pt(i,v).join(',')).join(' ');
+    let rings='';
+    [1,.75,.5,.25].forEach(r=>{rings+='<polygon points="'+poly([r,r,r,r,r])+'" fill="none" stroke="#DCE5F1" stroke-width="1"/>';});
+    const labels=['キャッチ','ハイボール','パスキック','ポジショニング','1対1'];
+    let lab='';
+    labels.forEach((t,i)=>{const p=pt(i,1.3);lab+='<text x="'+p[0]+'" y="'+(p[1]+3)+'" text-anchor="middle" font-size="8" fill="#7C8DA3" font-weight="700">'+t+'</text>';});
+    return '<svg viewBox="0 0 180 175" style="width:100%;height:auto">'+rings+
+      '<polygon points="'+poly(prev)+'" fill="none" stroke="#9AA7B7" stroke-width="1.4" stroke-dasharray="3 3"/>'+
+      '<polygon points="'+poly(vals)+'" fill="rgba(0,78,188,.15)" stroke="#004EBC" stroke-width="2"/>'+lab+'</svg>';
+  }
+
+  function cal(days){
+    return days.map(x=>{
+      if(!x.d) return '<div class="d empty"></div>';
+      let dots='';
+      if(x.mt) dots+='<i style="background:#004EBC"></i>';
+      if(x.ev) dots+='<i style="background:#E5B700"></i>';
+      const cls='d'+(x.pick?' pick':'')+(x.today?' today':'');
+      return '<div class="'+cls+'"><span>'+x.d+'</span><span class="dots">'+
+             (x.pick?'<i style="background:#fff"></i>':dots)+'</span></div>';
+    }).join('');
+  }
+
+  const S = {};
+
+  S.home = {
+    tab:'home', title:'ホーム', sub:'木下 蓮 ／ U-10',
+    body:`
+      <div class="card accent tap" data-go="training">
+        <p class="label">今週のトレーニング</p>
+        <p class="ttl" style="font-size:15.5px">第14週 パスキックの精度</p>
+        <p class="meta" style="color:rgba(255,255,255,.85)">動画 12分 ＋ 課題 1本 ／ 締切まで2日</p>
+        <button class="btn ghost" style="margin-top:11px">はじめる</button>
+      </div>
+      <div class="card tap" data-go="feedback">
+        <div class="row"><p class="ttl">早川コーチから添削が届きました</p><span class="pill new">NEW</span></div>
+        <p class="meta">第13週 ハイボールのキャッチ ／ 8月2日</p>
+      </div>
+      <div class="card tap" data-go="videos">
+        <div class="row"><p class="ttl">今週のメッセージ　高丘 陽平 選手</p><span class="pill new">NEW</span></div>
+        <p class="meta">1分40秒 ／ バンクーバーより ／ 来週は 福井 光輝 選手</p>
+      </div>
+      <div class="card tap" data-go="calendar">
+        <p class="label">ピックアップマッチ</p>
+        <div class="row"><p class="ttl">鹿島アントラーズ vs 浦和レッズ</p><span class="pill new">GKP対決</span></div>
+        <p class="meta">8月23日（日）19:00 ／ 県立カシマサッカースタジアム</p>
+        <p class="meta">早川 友基（鹿島）× 福井 光輝（浦和）</p>
+      </div>
+      <div class="card tap" data-go="events">
+        <p class="label">次に参加できるイベント</p>
+        <div class="row"><p class="ttl">GKクリニック さいたま</p><span class="pill todo">残 6 席</span></div>
+        <p class="meta">9月21日（日）／ 担当 福井 光輝（浦和レッズ）</p>
+      </div>`
+  };
+
+  S.training = {
+    tab:'train', title:'トレーニング', sub:'毎週月曜に配信されます',
+    body:`
+      <div class="card">
+        <div class="thumb" style="margin-bottom:10px"><div class="play">▶</div><span class="stamp">12:04</span></div>
+        <div class="row"><p class="ttl">第14週 パスキックの精度 ①</p><span class="pill new">今週</span></div>
+        <p class="meta">軸足の向きと踏み込み ／ 次回の解放は 8月12日</p>
+      </div>
+      <div class="card">
+        <div class="row"><p class="ttl">今週の課題</p><span class="pill todo">未提出</span></div>
+        <p class="meta">10m先のターゲットへ20本。撮影して提出します。</p>
+        <p class="meta" style="color:#004EBC;font-weight:700">締切 8月10日（日）23:59</p>
+        <button class="btn" style="margin-top:10px">動画を撮影して提出</button>
+      </div>
+      <div class="card tap" data-go="feedback">
+        <div class="row"><p class="ttl">第13週 ハイボールのキャッチ</p><span class="pill done">添削済み</span></div>
+        <p class="meta">早川コーチのコメントを見る</p>
+      </div>
+      <div class="card" style="background:#F5F8FC">
+        <p class="label">連続提出</p>
+        <p class="ttl"><span class="num" style="font-size:22px">11</span> 週</p>
+      </div>`
+  };
+
+  S.videos = {
+    tab:'video', title:'動画', sub:'YouTubeの続きと、選手からの言葉',
+    body:`
+      <div class="filters"><span class="on">すべて</span><span>YouTubeの続き</span><span>対談</span><span>選手から</span><span>マインドセット</span></div>
+      <div class="card tap" data-go="plan">
+        <div class="thumb" style="margin-bottom:10px"><div class="play">▶</div><span class="stamp">フル版 58:12</span></div>
+        <div class="row"><p class="ttl">高丘 陽平 × 早川 友基</p><span class="pill lock">ベーシック以上</span></div>
+        <p class="meta" style="margin-bottom:8px">YouTubeでは①だけ公開しています</p>
+        <div class="divider"></div>
+        <div class="row" style="margin-top:8px"><p class="meta" style="margin:0">① 海外へ出た理由</p><span class="pill done">YouTube公開中</span></div>
+        <div class="row" style="margin-top:6px"><p class="meta" style="margin:0">② 練習の質の差</p><span class="pill lock">アプリ限定</span></div>
+        <div class="row" style="margin-top:6px"><p class="meta" style="margin:0">③ ケガとの向き合い方</p><span class="pill lock">アプリ限定</span></div>
+        <div class="row" style="margin-top:6px"><p class="meta" style="margin:0">④ 試合中の判断の作り方</p><span class="pill lock">アプリ限定</span></div>
+      </div>
+      <div class="card">
+        <div class="row"><p class="ttl">今週のメッセージ　高丘 陽平 選手</p><span class="pill new">NEW</span></div>
+        <p class="meta">1分40秒 ／ バンクーバーより ／ 毎週 GKPメンバーの持ち回りで届きます</p>
+        <div class="row" style="margin-top:9px">
+          <div class="dot">高丘</div><div class="dot">福井</div><div class="dot">早川</div><div class="dot" style="background:#EEF3F9;color:#9AA7B7">+15</div>
+          <p class="meta" style="margin:0;flex:1;text-align:right">来週は 福井 光輝 選手</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="row"><p class="ttl">試合前の心の準備</p><span class="pill done">無料公開</span></div>
+        <p class="meta">マインドセット ／ 早川 友基 ／ 18分</p>
+      </div>`
+  };
+
+  S.calendar = {
+    tab:'ev', title:'カレンダー', sub:'2026年8月 ／ 日程はサンプルです',
+    body:`
+      <div class="seg"><span class="on">カレンダー</span><span data-go="events">参加申込</span></div>
+      <div class="card">
+        <div class="cal">
+          <div class="dow">日</div><div class="dow">月</div><div class="dow">火</div><div class="dow">水</div><div class="dow">木</div><div class="dow">金</div><div class="dow">土</div>
+          ${cal([
+            {},{},{},{},{},{},{d:1},
+            {d:2},{d:3},{d:4},{d:5,today:1},{d:6},{d:7},{d:8,ev:1},
+            {d:9,ev:1},{d:10},{d:11},{d:12},{d:13},{d:14},{d:15,mt:1},
+            {d:16},{d:17},{d:18},{d:19},{d:20},{d:21},{d:22},
+            {d:23,pick:1},{d:24},{d:25},{d:26,ev:1},{d:27},{d:28},{d:29},
+            {d:30,pick:1},{d:31},{},{},{},{},{}
+          ])}
+        </div>
+        <div class="divider" style="margin:10px 0 8px"></div>
+        <div class="legend">
+          <span><b style="background:#004EBC"></b>所属選手の試合</span>
+          <span><b style="background:#E5B700"></b>GKPのイベント</span>
+          <span><b style="background:#004EBC;border-radius:2px"></b>ピックアップ</span>
+        </div>
+      </div>
+      <div class="card accent">
+        <div class="row"><p class="label" style="margin:0">ピックアップマッチ</p><span class="pill new">GKP対決</span></div>
+        <p class="ttl" style="font-size:15px;margin-top:6px">鹿島アントラーズ vs 浦和レッズ</p>
+        <p class="meta" style="color:rgba(255,255,255,.85)">8月23日（日）19:00 キックオフ</p>
+        <p class="meta" style="color:rgba(255,255,255,.85)">県立カシマサッカースタジアム</p>
+        <p class="meta" style="color:#FFF533;font-weight:700">早川 友基（鹿島）× 福井 光輝（浦和）</p>
+      </div>
+      <div class="card dark">
+        <div class="row"><p class="label" style="margin:0">ピックアップマッチ</p><span class="pill new">日本代表</span></div>
+        <p class="ttl" style="font-size:15px;margin-top:6px">日本代表 vs オーストラリア</p>
+        <p class="meta">8月30日（日）19:20 キックオフ ／ 埼玉スタジアム2002</p>
+        <p class="meta" style="color:#FFF533;font-weight:700">早川 友基 招集</p>
+      </div>
+      <div class="card">
+        <div class="row"><p class="ttl">鹿島アントラーズ vs 湘南ベルマーレ</p><span class="pill done">試合</span></div>
+        <p class="meta">8月15日（土）14:00 ／ 県立カシマサッカースタジアム</p>
+        <p class="meta">早川 友基</p>
+      </div>
+      <div class="card">
+        <div class="row"><p class="ttl">トークセッション「GKの見方が変わる90分」</p><span class="pill todo">申込受付中</span></div>
+        <p class="meta">8月26日（水）19:30 ／ オンライン（カナダから中継）／ 高丘 陽平</p>
+      </div>
+      <div class="card">
+        <div class="row"><p class="ttl">GKキャンプ 2026 夏</p><span class="pill done">申込済み</span></div>
+        <p class="meta">8月8日（土）–9日（日）／ 鶴間公園グラウンド</p>
+      </div>`
+  };
+
+  S.events = {
+    tab:'ev', title:'イベント参加', sub:'全国のクリニック・キャンプ',
+    body:`
+      <div class="seg"><span data-go="calendar">カレンダー</span><span class="on">参加申込</span></div>
+      <div class="filters"><span>全国</span><span class="on">関東</span><span>中部</span><span>関西</span><span>九州</span><span>東北</span></div>
+      <div class="card tap" data-go="checkin">
+        <div class="row"><p class="ttl">GKキャンプ 2026 夏</p><span class="pill done">申込済み</span></div>
+        <p class="meta">8月8日–9日 ／ 東京・鶴間公園グラウンド</p>
+        <button class="btn ghost" style="margin-top:10px">受付QRを表示</button>
+      </div>
+      <div class="card">
+        <div class="row"><p class="ttl">GKクリニック さいたま</p><span class="pill todo">残 6 席</span></div>
+        <p class="meta">9月21日 ／ 担当 福井 光輝（浦和レッズ）</p>
+      </div>
+      <div class="card">
+        <div class="row"><p class="ttl">GKクリニック 東北（仙台）</p><span class="pill todo">残 14 席</span></div>
+        <p class="meta">10月12日 ／ 松澤 香輝（仙台）・長谷川 洸（山形）の2名が指導</p>
+      </div>
+      <div class="card dark">
+        <p class="label">会員先行予約</p>
+        <p class="ttl" style="font-size:13.5px">一般公開の 1週間前に案内が届きます</p>
+      </div>`
+  };
+
+  S.mypage = {
+    tab:'my', title:'マイページ', sub:'保護者アカウント 木下 晴喜 様',
+    body:`
+      <div class="card">
+        <div class="row">
+          <div><p class="ttl" style="font-size:15px">木下 蓮</p><p class="meta">U-10 ／ 会員ID 2026-0731</p></div>
+          <span class="pill lock">無料会員</span>
+        </div>
+      </div>
+      <div class="card">
+        <p class="label">成長記録　実線 今回 ／ 破線 前回</p>
+        ${radar([.86,.62,.72,.68,.8],[.74,.55,.5,.62,.72])}
+        <div class="row"><p class="meta" style="margin:0">最も伸びた項目 パスキック</p><p class="ttl num" style="color:#004EBC">+22%</p></div>
+      </div>
+      <div class="card tap" data-go="parent">
+        <div class="row"><p class="ttl">保護者レポート 7月分</p><span class="pill new">NEW</span></div>
+        <p class="meta">提出 4/4 ／ 視聴 86分</p>
+      </div>
+      <div class="card tap" data-go="plan">
+        <div class="row"><p class="ttl">プランを見る</p><span class="pill todo">無料</span></div>
+        <p class="meta">ベーシックにすると週1本の配信と課題が届きます</p>
+      </div>`
+  };
+
+  S.feedback = {
+    tab:'train', title:'添削', sub:'第13週 ハイボールのキャッチ',
+    body:`
+      <div class="thumb"><div class="play">▶</div><span class="stamp">提出動画 00:42</span></div>
+      <div class="card">
+        <div class="row" style="align-items:center">
+          <div class="dot" style="background:#0B233F;color:#fff">早川</div>
+          <div style="flex:1">
+            <p class="ttl" style="font-size:13px">早川 友基 コーチ</p>
+            <p class="meta">8月2日 21:14</p>
+          </div>
+        </div>
+        <div class="divider" style="margin:10px 0"></div>
+        <p style="margin:0;font-size:12.5px">踏み切りの前に一歩入れられているのが良いです。ボールを迎えにいく時、最後の一歩が大きくなって体が流れています。次は歩幅を小さく刻んでみてください。</p>
+      </div>
+      <div class="card">
+        <p class="label">チェックポイント</p>
+        <div class="listrow" style="margin-bottom:7px"><span class="dot" style="background:#E7EFFB;color:#004EBC">◎</span><p style="margin:0;font-size:12.5px">踏み切り前の準備</p></div>
+        <div class="listrow" style="margin-bottom:7px"><span class="dot" style="background:#E7EFFB;color:#004EBC">◎</span><p style="margin:0;font-size:12.5px">キャッチの手の形</p></div>
+        <div class="listrow"><span class="dot" style="background:#FFF6C2;color:#6B5D00">△</span><p style="margin:0;font-size:12.5px">最後の一歩の歩幅</p></div>
+      </div>`
+  };
+
+  S.checkin = {
+    tab:'ev', title:'受付', sub:'GKキャンプ 2026 夏 ／ 低学年の部',
+    body:`
+      <div class="card dark">
+        <p class="label">本日の受付</p>
+        <p class="ttl" style="font-size:15.5px">8月8日（土）9:00 集合</p>
+        <p class="meta">鶴間公園グラウンド ／ 受付 8:30〜</p>
+      </div>
+      <div class="card" style="text-align:center;padding:16px 14px">
+        ${qr(77)}
+        <p class="ttl" style="margin-top:12px">木下 蓮 ／ U-10</p>
+        <p class="meta">会員ID 2026-0731 ／ 保護者アカウント連携済み</p>
+      </div>
+      <div class="card" style="background:#E7EFFB;border-color:#E7EFFB">
+        <p class="ttl" style="color:#004EBC;font-size:13px">この画面が出席簿です</p>
+        <p class="meta" style="color:#41556F">紙の名簿は使いません。提示すると当日の動画と評価がこのアカウントに届きます。</p>
+      </div>`
+  };
+
+  S.parent = {
+    tab:'my', title:'保護者レポート', sub:'2026年7月分 ／ 木下 蓮',
+    body:`
+      <div class="card dark">
+        <p class="label">今月のまとめ</p>
+        <div class="row" style="margin-top:6px">
+          <div><p class="ttl num" style="font-size:22px">4/4</p><p class="meta">課題の提出</p></div>
+          <div><p class="ttl num" style="font-size:22px">2</p><p class="meta">添削の回数</p></div>
+          <div><p class="ttl num" style="font-size:22px">86<span style="font-size:11px">分</span></p><p class="meta">動画の視聴</p></div>
+        </div>
+      </div>
+      <div class="card">
+        <p class="label">コーチから</p>
+        <p style="margin:0;font-size:12.5px">提出が毎週続いています。7月はパスキックが大きく伸びました。8月はハイボールに取り組みます。</p>
+      </div>
+      <div class="card">
+        <p class="label">お支払い</p>
+        <div class="row"><p class="ttl">ベーシック ¥1,980</p><span class="pill done">8月1日 決済済み</span></div>
+      </div>
+      <button class="btn ghost">レポートをPDFで受け取る</button>`
+  };
+
+  S.plan = {
+    tab:'my', title:'プラン', sub:'現在 無料会員',
+    body:`
+      <div class="card accent">
+        <div class="row"><div><p class="label">まずはここから</p><p class="ttl" style="font-size:15.5px">ファン</p></div>
+        <p class="ttl num" style="font-size:17px">¥1,000<span style="font-size:11px"> /月</span></p></div>
+        <p class="meta" style="color:rgba(255,255,255,.85)">マインドセット・対談のフル版 ／ 選手からのメッセージ ／ YouTubeで公開しない続き</p>
+        <button class="btn ghost" style="margin-top:10px">このプランにする</button>
+      </div>
+      <div class="card dark">
+        <div class="row"><p class="ttl">オンラインサービス</p><p class="ttl num">¥10,000<span style="font-size:11px;color:#9FB4CC"> /月</span></p></div>
+        <p class="meta">週1本の動画と課題 ／ コーチによる動画添削 ／ 早川選手と直接やり取り</p>
+        <p class="meta" style="color:#FFF533;font-weight:700">定員制・半年契約</p>
+      </div>
+      <div class="card">
+        <p class="label">無料のまま使えること</p>
+        <p class="meta" style="margin:0">参加の記録と成長記録 ／ イベントの先行予約 ／ アーカイブ動画 数本</p>
+      </div>
+      <p class="meta" style="text-align:center">お支払い手続きはWebページで行います</p>`
+  };
+
+  const ORDER = [
+    ['home','ホーム','接続','開いた瞬間に、次にやることが1つ見える',
+      '今週のトレーニング・届いた添削・選手からのメッセージ・次のイベントだけを置きます。動画一覧をトップにしないのは、消費するだけの使い方に戻さないためです。',
+      [['次の行動が絞られ、離脱しにくい'],['毎週「新着がある」状態を作れる'],['オフラインとオンラインが同じ画面に並ぶ']]],
+    ['training','トレーニング','収益','週1本の動画と課題、そして添削。有料の本体はここ',
+      '月曜に動画と課題が配信され、撮影して提出すると添削が返ります。契約日を起点に1本ずつ解放されるので、一気に見終わることがありません。',
+      [['課金直後に全部見られて張り合いがなくなる問題を解く'],['返ってくるサービスなので、止めると損をする'],['どのテーマが響くかのデータが毎週たまる']]],
+    ['videos','動画','収益','YouTubeで切って、続きをアプリで渡す',
+      'YouTubeには冒頭と、複数あるトークテーマのうち1つだけを公開します。フル版はアプリの有料会員だけが見られる形です。選手からのメッセージはGKPメンバーの持ち回りで毎週届きます。',
+      [['収録1本から、無料の集客と有料の価値が同時に作れる'],['切り分けて出すので、週1更新の負担そのものが下がる'],['メッセージを持ち回りにすると、早川選手個人への依存が下がる']]],
+    ['calendar','カレンダー','接続','試合を見る日も、アプリを開く日にする',
+      'GKPに所属する選手の試合を、会場とキックオフ時間まで載せます。クリニックやトークセッションも同じ月表示に並べ、所属選手同士の対戦と、代表戦に呼ばれたときはピックアップマッチとして目立たせます。',
+      [['配信のない日にも、アプリを開く理由ができる'],['「今週は誰の試合を見るか」が決まり、選手との距離が縮まる'],['観戦 → トークセッション → クリニックと、無料の接点を横に並べられる']]],
+    ['events','イベント参加','入口','全国どこで開催されるかが、会員から見える',
+      '地域で絞れるイベント一覧です。申込むと受付QRが発行され、当日はそれが出席簿になります。会員には一般公開の1週間前に案内が届きます。',
+      [['キャラバンの告知先を、毎回ゼロから集めなくてよくなる'],['どの地域に需要があるかが申込データでわかる'],['先行予約が、会員でい続ける理由になる']]],
+    ['mypage','マイページ','接続','伸びが見えるから、やめられない',
+      '5軸の成長記録・保護者レポート・プランをここにまとめます。選手のプロフィールは保護者アカウントの配下に置きます。',
+      [['クリニックの評価と週次課題が1本の記録になる'],['支払う人（保護者）の入口がここにある'],['解約を考える前に「伸び」が目に入る']]],
+    ['feedback','添削','収益','コーチの言葉が、価値の実体になる',
+      '提出した動画にコーチがコメントを返します。エリートプランでは早川選手本人が担当し、そこが最上位プランの価値の核になります。',
+      [['「直接見てもらえる」という体験が単価を支える'],['ZOOMに頼らず1対1の接点をつくれる'],['コーチ側の作業時間が読める形に収まる']]],
+    ['checkin','受付QR','入口','オフラインの参加者を、その場で会員にする',
+      '会場の受付をこの画面だけにします。紙の名簿を廃止するので、参加すれば必ずアプリに登録された状態になります。当日の動画と評価の受け取り口も、ここに一本化します。',
+      [['登録を“お願い”しなくても、参加者の登録率が上がる'],['当日の熱量が高いうちにアカウントが残る'],['出欠と参加履歴が自動で記録される']]],
+    ['parent','保護者レポート','収益','支払う人に、毎月の成果を見せる',
+      '課金を判断するのは保護者です。提出状況・視聴時間・コーチのコメント・支払い状況を月次でまとめます。',
+      [['解約の意思決定者に、続ける根拠が届く'],['問い合わせ対応の手間が減る'],['選手本人と保護者の役割を分けられる']]],
+    ['plan','プラン','収益','無料のまま置いておける場所をつくる',
+      '全参加者をまず無料会員として保持し、課題や動画に触れたタイミングで引き上げます。決済手続きはWebページで完結させます。',
+      [['全国の参加者を無料で抱え、季節ごとにアップセルできる'],['iOSのアプリ内課金手数料を避けられる'],['既存のStripe決済をそのまま使える']]]
+  ];
+
+  function screenHTML(id){
+    const s = S[id];
+    const tabs = [['home','ホーム','home'],['train','トレーニング','train'],['video','動画','video'],['ev','イベント','ev'],['my','マイページ','my']];
+    return `
+      <div class="statusbar"><span class="num">9:41</span><span style="font-family:var(--font-en);letter-spacing:.1em;font-weight:600">GKP</span></div>
+      <div class="apphead"><div><h2>${s.title}</h2><p class="sub">${s.sub}</p></div></div>
+      <div class="body scroll">${s.body}</div>
+      <div class="tabbar">${tabs.map(t=>`<button data-tab="${t[0]}" aria-current="${t[0]===s.tab}">${ICONS[t[2]]}<span>${t[1]}</span></button>`).join('')}</div>`;
+  }
+
+  const V1 = new Set(['home','calendar','events','checkin','mypage']);
+  const phaseLabel = id => V1.has(id) ? '12月ローンチ' : '1月以降';
+  const TAB_HOME = {home:'home', train:'training', video:'videos', ev:'events', my:'mypage'};
+  const heroScreen = document.getElementById('hero-screen');
+  const chips = document.getElementById('chips');
+  let current = 'home';
+
+  function render(id, scroll){
+    current = id;
+    const meta = ORDER.find(o=>o[0]===id);
+    heroScreen.innerHTML = screenHTML(id);
+    heroScreen.animate ? heroScreen.animate([{opacity:.4},{opacity:1}],{duration:160,easing:'ease-out'}) : null;
+    document.getElementById('n-stage').textContent = 'ファネル上の役割 ／ ' + meta[2];
+    const ph = document.getElementById('n-phase');
+    ph.textContent = phaseLabel(id);
+    ph.className = 'phase-badge' + (V1.has(id) ? ' now' : '');
+    document.getElementById('n-title').textContent = meta[3];
+    document.getElementById('n-desc').textContent = meta[4];
+    document.getElementById('n-solves').innerHTML = meta[5]
+      .map((s,i)=>`<div class="solve"><b>${i+1}</b><p>${s[0]}</p></div>`).join('');
+    [...chips.children].forEach(c=>c.setAttribute('aria-selected', c.dataset.id===id));
+    if(scroll) window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  ORDER.forEach((o,i)=>{
+    if(i===6){
+      const sep=document.createElement('span');
+      sep.textContent='この中の画面 →';
+      sep.style.cssText='font-size:11.5px;font-weight:700;color:var(--text-3);align-self:center;margin-left:6px';
+      chips.appendChild(sep);
+    }
+    const b=document.createElement('button');
+    b.className='chip'; b.dataset.id=o[0]; b.textContent=o[1]; b.setAttribute('role','tab');
+    b.addEventListener('click',()=>render(o[0],false));
+    chips.appendChild(b);
+  });
+
+  heroScreen.addEventListener('click', e=>{
+    const tab = e.target.closest('[data-tab]');
+    if(tab){ render(TAB_HOME[tab.dataset.tab], false); return; }
+    const go = e.target.closest('[data-go]');
+    if(go){ render(go.dataset.go, false); }
+  });
+
+  const grid = document.getElementById('grid');
+  ORDER.forEach(o=>{
+    const fig=document.createElement('button');
+    fig.className='mini'; fig.type='button';
+    fig.innerHTML = `<div class="holder"><div class="phone"><div class="notch"></div><div class="screen">${screenHTML(o[0])}</div></div></div>
+      <figcaption><div class="cap">${o[1]}</div><div class="capsub">${o[2]} ／ ${phaseLabel(o[0])}</div></figcaption>`;
+    fig.addEventListener('click',()=>render(o[0],true));
+    grid.appendChild(fig);
+  });
+
+  function scaleMinis(){
+    document.querySelectorAll('.mini .holder').forEach(h=>{
+      const p = h.querySelector('.phone');
+      p.style.width = '412px';
+      const k = h.clientWidth / 412;
+      p.style.transform = 'scale('+k+')';
+      h.style.height = Math.round(p.offsetHeight * k) + 'px';
+    });
+  }
+  window.addEventListener('resize', scaleMinis);
+  if(window.ResizeObserver){ new ResizeObserver(scaleMinis).observe(grid); }
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(scaleMinis); }
+  render('home', false);
+  scaleMinis();
+})();
+</script>
