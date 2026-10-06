@@ -10,13 +10,13 @@ import { getSessionDetail, type SetRow } from "@/lib/data/sessions";
 import { getExerciseHistories } from "@/lib/data/stats";
 import { isUuid } from "@/lib/data/util";
 import { formatDayLabel } from "@/lib/domain/dates";
-import { formatMinutes, formatNumber } from "@/lib/domain/format";
+import { formatNumber, minutesStat } from "@/lib/domain/format";
 import { formatPlanTarget } from "@/lib/domain/plan-format";
 import { epley1RM, formatSet, sessionStats } from "@/lib/domain/strength";
 import { workoutTypeLabel } from "@/lib/domain/workout-types";
 import { deleteWorkout } from "../actions";
 
-export const metadata: Metadata = { title: "Workout" };
+export const metadata: Metadata = { title: "トレーニング" };
 
 export default async function WorkoutDetailPage({ params, searchParams }: PageProps<"/history/[sessionId]">) {
   const { sessionId } = await params;
@@ -52,18 +52,18 @@ export default async function WorkoutDetailPage({ params, searchParams }: PagePr
     <Page>
       <div className="flex items-center justify-between pt-4">
         <Link href="/history" className="flex items-center gap-1 text-sm font-semibold text-muted">
-          <ArrowLeft className="h-4 w-4" /> History
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" /> HISTORY
         </Link>
         {plan?.created_by === "AI" ? (
           <Pill className="bg-accent/15 text-accent">
-            <Bot className="mr-1 h-3 w-3" /> AI PLAN
+            <Bot className="mr-1 h-3 w-3" aria-hidden="true" /> AIメニュー
           </Pill>
         ) : null}
       </div>
 
       {done ? (
         <div className="mt-4 flex items-center gap-2 rounded-2xl bg-push/10 px-4 py-3 font-bold text-push" data-testid="saved-banner">
-          <Check className="h-5 w-5" /> WORKOUT SAVED
+          <Check className="h-5 w-5" aria-hidden="true" /> トレーニングを保存しました
         </div>
       ) : null}
 
@@ -77,15 +77,15 @@ export default async function WorkoutDetailPage({ params, searchParams }: PagePr
       </header>
 
       <Card className="grid grid-cols-4 gap-2">
-        <Stat label="Time" value={minutes ? formatMinutes(minutes) : "–"} size="sm" />
-        <Stat label="Sets" value={stats.workingSets} size="sm" />
-        <Stat label="Volume" value={stats.volumeKg ? formatNumber(stats.volumeKg / 1000, 1) : "–"} unit={stats.volumeKg ? "t" : undefined} size="sm" />
+        <Stat label="時間" {...minutesStat(minutes)} size="sm" />
+        <Stat label="セット" value={stats.workingSets} size="sm" />
+        <Stat label="ボリューム" value={stats.volumeKg ? formatNumber(stats.volumeKg / 1000, 1) : "–"} unit={stats.volumeKg ? "t" : undefined} size="sm" />
         <Stat label="sRPE" value={session.session_rpe ?? "–"} sub={load ? `${load} AU` : undefined} size="sm" />
       </Card>
 
       {plan?.coach_reason ? <p className="mt-3 text-sm leading-relaxed text-muted">{plan.coach_reason}</p> : null}
 
-      <SectionTitle>Exercises</SectionTitle>
+      <SectionTitle>種目</SectionTitle>
       <div className="space-y-2">
         {groups.map((g) => {
           const ex = exercises.get(g.exerciseId);
@@ -99,7 +99,7 @@ export default async function WorkoutDetailPage({ params, searchParams }: PagePr
                 {target ? <span className="num text-xs text-muted">{[target.main, ...target.details].join(" · ")}</span> : null}
               </div>
               {g.sets.length === 0 ? (
-                <p className="mt-2 text-sm text-faint">Not done</p>
+                <p className="mt-2 text-sm text-faint">未実施</p>
               ) : (
                 <ol className="mt-2 space-y-1">
                   {g.sets.map((s, i) => {
@@ -109,14 +109,14 @@ export default async function WorkoutDetailPage({ params, searchParams }: PagePr
                     const belowTarget = g.target?.target_reps_min != null && s.reps != null && s.reps < g.target.target_reps_min;
                     return (
                       <li key={s.id} className="num flex items-center gap-3 text-sm">
-                        <span className="w-6 text-faint">S{i + 1}</span>
+                        <span className="w-6 text-faint">{i + 1}</span>
                         <span className="flex-1 font-semibold">{formatSet(s, unit)}</span>
                         {isHeaviestPb || isE1rmPb ? (
                           <span className="flex items-center gap-1 rounded bg-moderate/15 px-1.5 text-[10px] font-bold text-moderate">
-                            <Trophy className="h-3 w-3" /> PB
+                            <Trophy className="h-3 w-3" aria-hidden="true" /> PB
                           </span>
                         ) : null}
-                        {belowTarget ? <span className="text-[10px] font-bold text-low">BELOW TARGET</span> : null}
+                        {belowTarget ? <span className="text-[11px] font-bold text-low">目標未達</span> : null}
                         <span className="w-14 text-right text-muted">{s.rpe ? `RPE ${s.rpe}` : ""}</span>
                       </li>
                     );
@@ -130,7 +130,7 @@ export default async function WorkoutDetailPage({ params, searchParams }: PagePr
 
       {session.notes ? (
         <>
-          <SectionTitle>Notes</SectionTitle>
+          <SectionTitle>メモ</SectionTitle>
           <Card>
             <p className="whitespace-pre-line text-sm">{session.notes}</p>
           </Card>
@@ -138,7 +138,7 @@ export default async function WorkoutDetailPage({ params, searchParams }: PagePr
       ) : null}
 
       <form action={deleteWorkout.bind(null, session.id)} className="mt-8">
-        <ConfirmButton message="Delete this workout and all of its sets?">Delete workout</ConfirmButton>
+        <ConfirmButton message="このトレーニングと記録したセットをすべて削除しますか？">トレーニングを削除</ConfirmButton>
       </form>
     </Page>
   );

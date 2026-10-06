@@ -7,12 +7,12 @@ import { listExerciseSessionStats } from "./stats";
 import { fetchAll } from "./util";
 
 export const RANGES = {
-  "7d": { label: "7D", days: 7 },
-  "30d": { label: "30D", days: 30 },
-  "3m": { label: "3M", days: 91 },
-  "6m": { label: "6M", days: 182 },
-  "1y": { label: "1Y", days: 365 },
-  all: { label: "ALL", days: null },
+  "7d": { label: "7日", days: 7 },
+  "30d": { label: "30日", days: 30 },
+  "3m": { label: "3か月", days: 91 },
+  "6m": { label: "6か月", days: 182 },
+  "1y": { label: "1年", days: 365 },
+  all: { label: "全期間", days: null },
 } as const;
 export type RangeKey = keyof typeof RANGES;
 

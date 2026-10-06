@@ -60,7 +60,7 @@ function Stopwatch({ onStop }: { onStop: (seconds: number) => void }) {
         className="flex h-8 items-center gap-1.5 rounded-lg bg-surface-2 px-2.5 text-xs font-bold text-muted active:bg-surface-3"
         data-testid="stopwatch-start"
       >
-        <Timer className="h-4 w-4" /> TIMER
+        <Timer className="h-4 w-4" aria-hidden="true" /> タイマー
       </button>
     );
   }
@@ -75,7 +75,7 @@ function Stopwatch({ onStop }: { onStop: (seconds: number) => void }) {
       className="num flex h-8 items-center gap-1.5 rounded-lg bg-recover px-2.5 text-sm font-bold text-white"
       data-testid="stopwatch-stop"
     >
-      <Pause className="h-4 w-4 fill-current" /> {formatDuration(elapsed)} STOP
+      <Pause className="h-4 w-4 fill-current" aria-hidden="true" /> {formatDuration(elapsed)} 停止
     </button>
   );
 }
@@ -108,9 +108,9 @@ export function SetFields({
   return (
     <div className="space-y-3">
       {usesWeight(unit) ? (
-        <Row label={unit === "bodyweight_reps" ? "Added weight" : "Weight"}>
+        <Row label={unit === "bodyweight_reps" ? "追加重量" : "重量"}>
           <Stepper
-            label="weight"
+            label="重量"
             value={draft.weight ?? 0}
             onChange={(weight) => onChange({ weight })}
             step={exercise.increment}
@@ -126,9 +126,9 @@ export function SetFields({
         </Row>
       ) : null}
       {usesReps(unit) ? (
-        <Row label="Reps">
+        <Row label="回数">
           <Stepper
-            label="reps"
+            label="回数"
             value={draft.reps ?? 0}
             onChange={(reps) => onChange({ reps: Math.round(reps) })}
             step={1}
@@ -139,9 +139,9 @@ export function SetFields({
         </Row>
       ) : null}
       {usesDistance(unit) ? (
-        <Row label="Distance">
+        <Row label="距離">
           <Stepper
-            label="distance"
+            label="距離"
             value={draft.distance ?? 0}
             onChange={(distance) => onChange({ distance })}
             step={distanceStep(exercise.defaultDistance)}
@@ -153,9 +153,9 @@ export function SetFields({
         </Row>
       ) : null}
       {usesTime(unit) ? (
-        <Row label={unit === "weight_distance" ? "Time (optional)" : "Time"} extra={<Stopwatch onStop={(s) => onChange({ time_seconds: s })} />}>
+        <Row label={unit === "weight_distance" ? "タイム（任意）" : "タイム"} extra={<Stopwatch onStop={(s) => onChange({ time_seconds: s })} />}>
           <Stepper
-            label="time"
+            label="タイム"
             value={draft.time_seconds ?? 0}
             onChange={(t) => onChange({ time_seconds: Math.round(t) })}
             step={5}

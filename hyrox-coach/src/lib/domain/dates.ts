@@ -57,27 +57,26 @@ export function eachDay(from: IsoDate, to: IsoDate): IsoDate[] {
   return out;
 }
 
-const WEEKDAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+const WEEKDAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
-/** "TUE 6 OCT" */
+/** "10月6日（火）" */
 export function formatDayLabel(date: IsoDate): string {
   const d = toUtc(date);
-  return `${WEEKDAYS[d.getUTCDay()]} ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
+  return `${d.getUTCMonth() + 1}月${d.getUTCDate()}日（${WEEKDAYS[d.getUTCDay()]}）`;
 }
 
-/** "6 OCT" (adds the year when it differs from `referenceYear`). */
+/** "10/6" (prefixes the year, "2025/10/6", when it differs from `referenceYear`). */
 export function formatShortDate(date: IsoDate, referenceYear?: number): string {
   const d = toUtc(date);
-  const base = `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
-  return referenceYear && referenceYear !== d.getUTCFullYear() ? `${base} ${d.getUTCFullYear()}` : base;
+  const base = `${d.getUTCMonth() + 1}/${d.getUTCDate()}`;
+  return referenceYear && referenceYear !== d.getUTCFullYear() ? `${d.getUTCFullYear()}/${base}` : base;
 }
 
 export function relativeDayLabel(date: IsoDate, today: IsoDate): string {
   const diff = diffDays(today, date);
-  if (diff === 0) return "Today";
-  if (diff === 1) return "Yesterday";
-  if (diff > 1 && diff < 7) return `${diff} days ago`;
+  if (diff === 0) return "今日";
+  if (diff === 1) return "昨日";
+  if (diff > 1 && diff < 7) return `${diff}日前`;
   return formatShortDate(date, Number(today.slice(0, 4)));
 }
 

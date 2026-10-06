@@ -55,7 +55,7 @@ export async function startQuickSession(
   db: Db,
   userId: string,
   today: string,
-  title = "Workout",
+  title = "トレーニング",
   workoutType: WorkoutType = "other",
 ): Promise<string> {
   const { planId } = await createPlan(db, userId, {

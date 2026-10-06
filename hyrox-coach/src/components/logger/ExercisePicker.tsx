@@ -8,16 +8,16 @@ import type { LoggerExercise } from "@/lib/logger";
 
 const CATEGORY_ORDER = ["hyrox_station", "run", "push", "pull", "legs", "hinge", "carry", "core", "cardio", "other"];
 const CATEGORY_LABEL: Record<string, string> = {
-  hyrox_station: "HYROX Stations",
-  run: "Running",
-  push: "Push",
-  pull: "Pull",
-  legs: "Legs",
-  hinge: "Hinge",
-  carry: "Carry",
-  core: "Core",
-  cardio: "Cardio",
-  other: "Other",
+  hyrox_station: "HYROX ステーション",
+  run: "ランニング",
+  push: "プッシュ（押す）",
+  pull: "プル（引く）",
+  legs: "脚",
+  hinge: "ヒンジ",
+  carry: "キャリー",
+  core: "体幹",
+  cardio: "有酸素",
+  other: "その他",
 };
 
 export function ExercisePicker({
@@ -46,10 +46,10 @@ export function ExercisePicker({
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-faint" />
         <input
           className={`${inputClass} pl-9`}
-          placeholder="Search exercises"
+          placeholder="種目を検索（英語名）"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          aria-label="Search exercises"
+          aria-label="種目を検索"
         />
       </div>
       <div className="space-y-4 pb-4">
@@ -62,7 +62,7 @@ export function ExercisePicker({
                   key={e.id}
                   type="button"
                   onClick={() => onPick(e)}
-                  className="truncate rounded-xl bg-surface-2 px-3 py-3 text-left text-sm font-semibold active:bg-surface-3"
+                  className="min-h-11 break-words rounded-xl bg-surface-2 px-3 py-3 text-left text-sm font-semibold active:bg-surface-3"
                 >
                   {e.name}
                 </button>
@@ -70,7 +70,7 @@ export function ExercisePicker({
             </div>
           </div>
         ))}
-        {groups.length === 0 ? <p className="text-sm text-muted">No exercise matches “{query}”.</p> : null}
+        {groups.length === 0 ? <p className="text-sm text-muted">「{query}」に一致する種目はありません。</p> : null}
       </div>
     </Sheet>
   );

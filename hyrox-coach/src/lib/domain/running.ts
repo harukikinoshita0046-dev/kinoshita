@@ -13,14 +13,14 @@ export const RUN_TYPES = [
 export type RunType = (typeof RUN_TYPES)[number];
 
 export const RUN_TYPE_LABELS: Record<RunType, string> = {
-  easy: "Easy",
-  zone2: "Zone 2",
-  tempo: "Tempo",
-  threshold: "Threshold",
-  intervals: "Intervals",
-  hyrox_run: "HYROX Run",
-  long_run: "Long Run",
-  recovery: "Recovery",
+  easy: "イージー",
+  zone2: "ゾーン2",
+  tempo: "テンポ走",
+  threshold: "閾値走",
+  intervals: "インターバル",
+  hyrox_run: "HYROX ラン",
+  long_run: "ロング走",
+  recovery: "リカバリー",
 };
 
 /** Typical session RPE per run type, used for training load when RPE was not logged. */
@@ -60,7 +60,7 @@ export function normalizeRunType(input: string | null | undefined): RunType | nu
 }
 
 export function runTypeLabel(type: string | null | undefined): string {
-  return isRunType(type) ? RUN_TYPE_LABELS[type] : "Run";
+  return isRunType(type) ? RUN_TYPE_LABELS[type] : "ラン";
 }
 
 export function estimatedRunRpe(type: string | null | undefined): number {

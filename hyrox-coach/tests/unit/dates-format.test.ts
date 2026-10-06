@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { addDays, diffDays, formatDayLabel, isIsoDate, startOfWeek, todayInTimeZone } from "@/lib/domain/dates";
+import { addDays, diffDays, formatDayLabel, formatShortDate, isIsoDate, relativeDayLabel, startOfWeek, todayInTimeZone } from "@/lib/domain/dates";
 import {
   formatDistance,
   formatDuration,
@@ -26,7 +26,12 @@ describe("dates", () => {
     expect(diffDays("2026-10-06", "2026-09-29")).toBe(7);
     expect(startOfWeek("2026-10-06")).toBe("2026-10-05"); // Tuesday -> Monday
     expect(startOfWeek("2026-10-11")).toBe("2026-10-05"); // Sunday -> Monday
-    expect(formatDayLabel("2026-10-06")).toBe("TUE 6 OCT");
+    expect(formatDayLabel("2026-10-06")).toBe("10月6日（火）");
+    expect(formatShortDate("2026-10-06")).toBe("10/6");
+    expect(formatShortDate("2025-12-31", 2026)).toBe("2025/12/31");
+    expect(relativeDayLabel("2026-10-06", "2026-10-06")).toBe("今日");
+    expect(relativeDayLabel("2026-10-05", "2026-10-06")).toBe("昨日");
+    expect(relativeDayLabel("2026-10-03", "2026-10-06")).toBe("3日前");
   });
 
   it("validates ISO dates", () => {

@@ -6,14 +6,14 @@ import { Card, Page, PageHeader, SectionTitle } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { listExercises } from "@/lib/data/exercises";
 
-export const metadata: Metadata = { title: "Exercise Master" };
+export const metadata: Metadata = { title: "種目の設定" };
 
 const GROUPS: Array<{ title: string; categories: string[] }> = [
-  { title: "HYROX stations", categories: ["hyrox_station"] },
-  { title: "Running", categories: ["run"] },
-  { title: "Upper body", categories: ["push", "pull"] },
-  { title: "Lower body", categories: ["legs", "hinge"] },
-  { title: "Conditioning & core", categories: ["cardio", "carry", "core", "other"] },
+  { title: "HYROX ステーション", categories: ["hyrox_station"] },
+  { title: "ランニング", categories: ["run"] },
+  { title: "上半身", categories: ["push", "pull"] },
+  { title: "下半身", categories: ["legs", "hinge"] },
+  { title: "コンディショニング・体幹", categories: ["cardio", "carry", "core", "other"] },
 ];
 
 export default async function ExercisesPage() {
@@ -23,12 +23,12 @@ export default async function ExercisesPage() {
     <Page>
       <div className="pt-4">
         <Link href="/profile" className="flex items-center gap-1 text-sm font-semibold text-muted">
-          <ArrowLeft className="h-4 w-4" /> Profile
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" /> PROFILE
         </Link>
       </div>
       <PageHeader title="EXERCISES" />
       <p className="text-sm text-muted">
-        Weight step = how much the +/− buttons change the load. Default rest starts automatically after each set (a coach plan can override it). The AI coach refers to exercises by the id shown under each name.
+        「重量の刻み」は −/＋ ボタン1回で変わる重さです。「標準レスト」は各セットの後に自動で始まります（AIコーチのメニューで上書きされることがあります）。AIコーチは、種目名の下に表示される ID で種目を指定します。
       </p>
       {GROUPS.map((g) => {
         const list = exercises.filter((e) => g.categories.includes(e.category));
@@ -55,7 +55,7 @@ export default async function ExercisesPage() {
           </section>
         );
       })}
-      <SectionTitle>Add custom exercise</SectionTitle>
+      <SectionTitle>オリジナル種目を追加</SectionTitle>
       <Card>
         <CustomExerciseForm />
       </Card>

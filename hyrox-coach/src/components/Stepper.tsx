@@ -96,7 +96,7 @@ export function Stepper({
     <div className="flex items-center gap-3" data-testid={testId}>
       <button
         type="button"
-        aria-label={`Decrease ${label}`}
+        aria-label={`${label}を減らす`}
         className={btn}
         onPointerDown={(e) => {
           e.preventDefault();
@@ -135,7 +135,7 @@ export function Stepper({
               setText(value == null ? "" : format(value));
               setEditing(true);
             }}
-            aria-label={`${label}: ${value == null ? "not set" : format(value)}${unit ? ` ${unit}` : ""}. Tap to type.`}
+            aria-label={`${label}: ${value == null ? "未設定" : format(value)}${unit ? ` ${unit}` : ""}（タップして入力）`}
           >
             <span
               className={cn("num font-extrabold leading-none", size === "lg" ? "text-[44px]" : "text-3xl")}
@@ -150,7 +150,7 @@ export function Stepper({
 
       <button
         type="button"
-        aria-label={`Increase ${label}`}
+        aria-label={`${label}を増やす`}
         className={btn}
         onPointerDown={(e) => {
           e.preventDefault();

@@ -53,6 +53,14 @@ const WEIGHTS: Record<ReadinessComponentKey, number> = {
   subjective: 0.2,
 };
 
+export const READINESS_COMPONENT_LABELS: Record<ReadinessComponentKey, string> = {
+  sleep: "睡眠",
+  hrv: "HRV",
+  resting_hr: "安静時心拍",
+  load: "トレーニング負荷",
+  subjective: "体感",
+};
+
 export const READINESS_LABELS: Record<ReadinessLevel, string> = {
   push: "READY TO PUSH",
   good: "GOOD",
@@ -90,10 +98,10 @@ export function computeReadiness(input: ReadinessInput): ReadinessResult {
     const score = clamp(100 - deficitHours * 15, 0, 100);
     components.push({
       key: "sleep",
-      label: "Sleep",
+      label: READINESS_COMPONENT_LABELS.sleep,
       score,
       weight: WEIGHTS.sleep,
-      detail: `${Math.floor(input.sleepMinutes / 60)}h ${input.sleepMinutes % 60}m vs ${SLEEP_TARGET_MINUTES / 60}h target`,
+      detail: `${Math.floor(input.sleepMinutes / 60)}時間${input.sleepMinutes % 60}分（目標 ${SLEEP_TARGET_MINUTES / 60}時間）`,
     });
   } else missing.push("sleep");
 
@@ -102,10 +110,10 @@ export function computeReadiness(input: ReadinessInput): ReadinessResult {
     const z = (input.hrv - input.hrvBaseline.mean) / sd;
     components.push({
       key: "hrv",
-      label: "HRV",
+      label: READINESS_COMPONENT_LABELS.hrv,
       score: clamp(75 + 17.5 * z, 0, 100),
       weight: WEIGHTS.hrv,
-      detail: `${round(input.hrv, 0)} ms vs ${round(input.hrvBaseline.mean, 0)} ms baseline (${z >= 0 ? "+" : ""}${round(z, 1)} SD)`,
+      detail: `${round(input.hrv, 0)} ms（平常値 ${round(input.hrvBaseline.mean, 0)} ms、${z >= 0 ? "+" : ""}${round(z, 1)} SD）`,
     });
   } else missing.push("hrv");
 
@@ -114,10 +122,10 @@ export function computeReadiness(input: ReadinessInput): ReadinessResult {
     const z = (input.restingHr - input.restingHrBaseline.mean) / sd;
     components.push({
       key: "resting_hr",
-      label: "Resting HR",
+      label: READINESS_COMPONENT_LABELS.resting_hr,
       score: clamp(75 - 17.5 * z, 0, 100),
       weight: WEIGHTS.resting_hr,
-      detail: `${input.restingHr} bpm vs ${round(input.restingHrBaseline.mean, 0)} bpm baseline`,
+      detail: `${input.restingHr} bpm（平常値 ${round(input.restingHrBaseline.mean, 0)} bpm）`,
     });
   } else missing.push("resting_hr");
 
@@ -127,14 +135,14 @@ export function computeReadiness(input: ReadinessInput): ReadinessResult {
     const score = clamp(90 - 25 * Math.max(0, ratio - 1) - 50 * spike, 0, 100);
     components.push({
       key: "load",
-      label: "Training load",
+      label: READINESS_COMPONENT_LABELS.load,
       score,
       weight: WEIGHTS.load,
       detail:
         input.loadYesterday === 0
-          ? "Rest day yesterday"
-          : `Yesterday ${round(input.loadYesterday, 0)} AU (${round(ratio, 1)}× a typical day)` +
-            (input.acwr != null ? `, ACWR ${input.acwr}` : ""),
+          ? "昨日は休養日"
+          : `昨日 ${round(input.loadYesterday, 0)} AU（普段の練習日の ${round(ratio, 1)} 倍）` +
+            (input.acwr != null ? `、ACWR ${input.acwr}` : ""),
     });
   } else missing.push("load");
 
@@ -145,16 +153,16 @@ export function computeReadiness(input: ReadinessInput): ReadinessResult {
   if (subjective.length) {
     components.push({
       key: "subjective",
-      label: "How you feel",
+      label: READINESS_COMPONENT_LABELS.subjective,
       score: mean(subjective)!,
       weight: WEIGHTS.subjective,
       detail: [
-        input.soreness != null ? `soreness ${input.soreness}/5` : null,
-        input.fatigue != null ? `fatigue ${input.fatigue}/5` : null,
-        input.motivation != null ? `motivation ${input.motivation}/5` : null,
+        input.soreness != null ? `筋肉痛 ${input.soreness}/5` : null,
+        input.fatigue != null ? `疲労 ${input.fatigue}/5` : null,
+        input.motivation != null ? `やる気 ${input.motivation}/5` : null,
       ]
         .filter(Boolean)
-        .join(", "),
+        .join("、"),
     });
   } else missing.push("subjective");
 

@@ -5,9 +5,9 @@ export const DEMO = { email: process.env.SEED_EMAIL ?? "demo@hyrox.local", passw
 
 export async function login(page: Page) {
   await page.goto("/login");
-  await page.getByLabel("Email").fill(DEMO.email);
-  await page.getByLabel("Password").fill(DEMO.password);
-  await page.getByRole("button", { name: "SIGN IN" }).click();
+  await page.getByLabel("メールアドレス").fill(DEMO.email);
+  await page.getByLabel(/パスワード/).fill(DEMO.password);
+  await page.getByRole("button", { name: "ログイン", exact: true }).click();
   await page.waitForURL("**/today");
   await expect(page.getByRole("heading", { name: "TODAY", exact: true })).toBeVisible();
 }

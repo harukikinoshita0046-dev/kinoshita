@@ -93,7 +93,7 @@ export function RunForm({
   return (
     <div className="space-y-5">
       <div>
-        <p className="label mb-2">Run type</p>
+        <p className="label mb-2">ランの種類</p>
         <div className="grid grid-cols-4 gap-1.5">
           {RUN_TYPES.map((t) => (
             <button
@@ -110,11 +110,11 @@ export function RunForm({
       </div>
 
       <div className="rounded-3xl bg-surface p-4">
-        <p className="label mb-1">Distance</p>
-        <Stepper label="distance" value={distance} onChange={setDistance} step={0.1} min={0} max={200} unit="km" format={(v) => formatNumber(v, 2)} testId="run-distance" />
-        <p className="label mb-1 mt-4">Time</p>
+        <p className="label mb-1">距離</p>
+        <Stepper label="距離" value={distance} onChange={setDistance} step={0.1} min={0} max={200} unit="km" format={(v) => formatNumber(v, 2)} testId="run-distance" />
+        <p className="label mb-1 mt-4">タイム</p>
         <Stepper
-          label="time"
+          label="タイム"
           value={duration}
           onChange={(v) => setDuration(Math.round(v))}
           step={30}
@@ -126,18 +126,18 @@ export function RunForm({
           testId="run-duration"
         />
         <p className="num mt-4 text-center text-sm text-muted">
-          Pace <span className="text-lg font-bold text-text">{pace ? formatPace(pace) : "–"}</span> /km
+          ペース <span className="text-lg font-bold text-text">{pace ? formatPace(pace) : "–"}</span> /km
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-2xl bg-surface p-3">
-          <p className="label mb-1">Avg HR</p>
-          <Stepper label="average heart rate" value={avgHr} onChange={setAvgHr} step={1} min={40} max={230} size="md" startAt={145} inputMode="numeric" />
+          <p className="label mb-1">平均心拍</p>
+          <Stepper label="平均心拍" value={avgHr} onChange={setAvgHr} step={1} min={40} max={230} size="md" startAt={145} inputMode="numeric" />
         </div>
         <div className="rounded-2xl bg-surface p-3">
-          <p className="label mb-1">Max HR</p>
-          <Stepper label="max heart rate" value={maxHr} onChange={setMaxHr} step={1} min={40} max={240} size="md" startAt={170} inputMode="numeric" />
+          <p className="label mb-1">最大心拍</p>
+          <Stepper label="最大心拍" value={maxHr} onChange={setMaxHr} step={1} min={40} max={240} size="md" startAt={170} inputMode="numeric" />
         </div>
       </div>
 
@@ -148,7 +148,7 @@ export function RunForm({
 
       {splits?.length ? (
         <div className="rounded-2xl bg-surface p-3">
-          <p className="label mb-2">Laps from live session</p>
+          <p className="label mb-2">計測したラップ</p>
           <ol className="num grid grid-cols-3 gap-1 text-sm">
             {splits.map((s, i) => (
               <li key={i}>
@@ -160,21 +160,21 @@ export function RunForm({
       ) : null}
 
       <details className="rounded-2xl bg-surface p-3">
-        <summary className="cursor-pointer text-sm font-semibold text-muted">More (date, cadence, calories, HR zones, notes)</summary>
+        <summary className="flex min-h-11 cursor-pointer items-center text-sm font-semibold text-muted">詳細（日付・ピッチ・カロリー・心拍ゾーン・メモ）</summary>
         <div className="mt-3 space-y-3">
-          <Field label="Date">
+          <Field label="日付">
             <input type="date" className={inputClass} value={date} max={today} onChange={(e) => setDate(e.target.value)} />
           </Field>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Cadence (spm)">
+            <Field label="ピッチ（歩/分）">
               <input className={inputClass} inputMode="numeric" value={cadence ?? ""} onChange={(e) => setCadence(e.target.value ? Number(e.target.value) : null)} />
             </Field>
-            <Field label="Calories">
+            <Field label="消費カロリー（kcal）">
               <input className={inputClass} inputMode="numeric" value={calories ?? ""} onChange={(e) => setCalories(e.target.value ? Number(e.target.value) : null)} />
             </Field>
           </div>
           <div>
-            <p className="label">HR zones (minutes)</p>
+            <p className="label">心拍ゾーン（分）</p>
             <div className="mt-1.5 grid grid-cols-5 gap-1.5">
               {zones.map((z, i) => (
                 <input
@@ -182,14 +182,14 @@ export function RunForm({
                   className={cn(inputClass, "px-2 text-center")}
                   inputMode="decimal"
                   placeholder={`Z${i + 1}`}
-                  aria-label={`Zone ${i + 1} minutes`}
+                  aria-label={`ゾーン${i + 1}の時間（分）`}
                   value={z}
                   onChange={(e) => setZones(zones.map((x, k) => (k === i ? e.target.value : x)))}
                 />
               ))}
             </div>
           </div>
-          <Field label="Notes">
+          <Field label="メモ">
             <textarea className={cn(inputClass, "h-20 py-2")} value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={2000} />
           </Field>
         </div>
@@ -197,7 +197,7 @@ export function RunForm({
 
       <ErrorText>{error}</ErrorText>
       <button type="button" onClick={submit} disabled={pending || !distance || !duration} className={buttonClass("primary", "lg", "w-full")} data-testid="save-run">
-        {pending ? "SAVING…" : "SAVE RUN"}
+        {pending ? "保存中…" : "ランを保存"}
       </button>
     </div>
   );

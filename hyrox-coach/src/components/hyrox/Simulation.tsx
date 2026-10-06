@@ -89,7 +89,7 @@ export function Simulation({ today, planId, pb }: { today: string; planId: strin
       const res = await saveHyroxResult({
         date: today,
         event_type: s.splits.length === 16 ? "simulation" : "partial",
-        name: "Simulation",
+        name: "シミュレーション",
         workout_plan_id: planId,
         started_at: s.startedAt ? new Date(s.startedAt).toISOString() : null,
         finished_at: s.finishedAt ? new Date(s.finishedAt).toISOString() : null,
@@ -110,7 +110,7 @@ export function Simulation({ today, planId, pb }: { today: string; planId: strin
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col px-4 pt-safe">
       <header className="flex items-center justify-between py-3">
-        <button type="button" onClick={() => router.push("/hyrox")} aria-label="Close" className="rounded-full bg-surface-2 p-2.5 text-muted">
+        <button type="button" onClick={() => router.push("/hyrox")} aria-label="閉じる" className="rounded-full bg-surface-2 p-2.5 text-muted">
           <X className="h-5 w-5" />
         </button>
         <p className="font-bold">HYROX SIMULATION</p>
@@ -120,7 +120,7 @@ export function Simulation({ today, planId, pb }: { today: string; planId: strin
       </header>
 
       {/* Segment progress */}
-      <ol className="grid grid-cols-16 gap-0.5" aria-label="Segments" style={{ gridTemplateColumns: "repeat(16, minmax(0, 1fr))" }}>
+      <ol className="grid grid-cols-16 gap-0.5" aria-label="区間の進み具合" style={{ gridTemplateColumns: "repeat(16, minmax(0, 1fr))" }}>
         {HYROX_SEGMENTS.map((x, i) => (
           <li
             key={x.index}
@@ -136,34 +136,34 @@ export function Simulation({ today, planId, pb }: { today: string; planId: strin
         {s.phase === "idle" ? (
           <>
             <p className="text-5xl font-extrabold">8 × 1 km</p>
-            <p className="mt-1 text-muted">+ 8 stations in race order</p>
+            <p className="mt-1 text-muted">+ 8 ステーション（レースと同じ順番）</p>
             {pb.total ? <p className="num mt-4 text-sm text-muted">PB {formatDuration(pb.total)}</p> : null}
-            <label className="mt-6 flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={s.trackRox} onChange={(e) => setS({ ...s, trackRox: e.target.checked })} className="h-5 w-5 accent-[var(--accent)]" />
-              Track Roxzone transitions (tap again when the next segment starts)
+            <label className="mt-6 flex min-h-11 items-start gap-3 text-left text-sm leading-relaxed">
+              <input type="checkbox" checked={s.trackRox} onChange={(e) => setS({ ...s, trackRox: e.target.checked })} className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--accent)]" />
+              Roxzone（区間の移動時間）も計測する（次の区間を始めるときにもう一度タップ）
             </label>
           </>
         ) : s.phase === "segment" && seg ? (
           <>
             <p className={cn("label", seg.type === "run" ? "text-run" : "text-station")}>
-              {segIdx + 1} / 16 · {seg.type === "run" ? "RUN" : "STATION"}
+              {segIdx + 1} / 16 · {seg.type === "run" ? "ラン" : "ステーション"}
             </p>
             <p className="mt-1 text-4xl font-extrabold uppercase" data-testid="sim-segment">
               {seg.label}
             </p>
             <p className="text-sm text-muted">{seg.spec}</p>
             <p className="num mt-4 text-8xl font-extrabold leading-none">{formatDuration(elapsedSeg)}</p>
-            {pbSplit ? <p className="num mt-3 text-sm text-muted">PB split {formatDuration(pbSplit)}</p> : null}
+            {pbSplit ? <p className="num mt-3 text-sm text-muted">PB のスプリット {formatDuration(pbSplit)}</p> : null}
           </>
         ) : s.phase === "roxzone" ? (
           <>
             <p className="label text-accent">ROXZONE</p>
             <p className="num mt-2 text-7xl font-extrabold leading-none text-accent">{formatDuration(elapsedRox)}</p>
-            <p className="mt-4 text-sm text-muted">Next: {nextSeg?.label}</p>
+            <p className="mt-4 text-sm text-muted">次: {nextSeg?.label}</p>
           </>
         ) : (
           <>
-            <p className="label">TODAY</p>
+            <p className="label">今回のタイム</p>
             <p className="num text-6xl font-extrabold" data-testid="sim-final">
               {formatDuration(totals.total)}
             </p>
@@ -178,15 +178,15 @@ export function Simulation({ today, planId, pb }: { today: string; planId: strin
                 ) : null}
               </>
             ) : (
-              <p className="mt-2 font-bold text-push">First simulation — this is your PB.</p>
+              <p className="mt-2 font-bold text-push">初めてのシミュレーション。これがあなたの PB です。</p>
             )}
             <div className="num mt-4 grid grid-cols-3 gap-4 text-sm">
               <div>
-                <p className="label">Running</p>
+                <p className="label">ラン</p>
                 <p className="font-bold">{formatDuration(totals.runTotal)}</p>
               </div>
               <div>
-                <p className="label">Stations</p>
+                <p className="label">ステーション</p>
                 <p className="font-bold">{formatDuration(totals.stationTotal)}</p>
               </div>
               <div>
@@ -209,7 +209,7 @@ export function Simulation({ today, planId, pb }: { today: string; planId: strin
                 <span>
                   <span className="font-bold">{formatDuration(x.duration_seconds)}</span>
                   {ref ? <span className={cn("ml-2 text-xs", x.duration_seconds <= ref ? "text-push" : "text-low")}>{formatSignedDuration(x.duration_seconds - ref)}</span> : null}
-                  {x.roxzone_seconds != null ? <span className="ml-2 text-xs text-faint">+{x.roxzone_seconds}s</span> : null}
+                  {x.roxzone_seconds != null ? <span className="ml-2 text-xs text-faint">+{x.roxzone_seconds}秒</span> : null}
                 </span>
               </li>
             );
@@ -221,33 +221,33 @@ export function Simulation({ today, planId, pb }: { today: string; planId: strin
       <div className="pb-safe space-y-2 pb-4">
         {s.phase === "idle" ? (
           <button type="button" onClick={start} className={buttonClass("primary", "lg", "h-20 w-full text-xl")} data-testid="sim-start">
-            <Play className="h-6 w-6 fill-current" /> START · RUN 1
+            <Play className="h-6 w-6 fill-current" aria-hidden="true" /> スタート（ラン 1）
           </button>
         ) : s.phase === "segment" && seg ? (
           <button type="button" onClick={finishSegment} className={buttonClass("primary", "lg", "h-20 w-full text-xl")} data-testid="sim-done">
-            <Check className="h-6 w-6" strokeWidth={3} /> {seg.label.toUpperCase()} DONE
+            <Check className="h-6 w-6" strokeWidth={3} aria-hidden="true" /> {seg.label} 完了
           </button>
         ) : s.phase === "roxzone" ? (
           <button type="button" onClick={startNext} className={buttonClass("primary", "lg", "h-20 w-full text-xl")} data-testid="sim-next">
-            <Play className="h-6 w-6 fill-current" /> START {nextSeg?.label.toUpperCase()}
+            <Play className="h-6 w-6 fill-current" aria-hidden="true" /> {nextSeg?.label} を開始
           </button>
         ) : (
           <button type="button" onClick={save} disabled={pending} className={buttonClass("primary", "lg", "h-20 w-full text-xl")} data-testid="sim-save">
-            {pending ? "SAVING…" : "SAVE RESULT"}
+            {pending ? "保存中…" : "結果を保存"}
           </button>
         )}
         {s.phase !== "idle" ? (
           <div className="grid grid-cols-2 gap-2">
             <button type="button" onClick={undo} disabled={s.splits.length === 0} className={buttonClass("secondary", "md")}>
-              <Undo2 className="h-4 w-4" /> Undo
+              <Undo2 className="h-4 w-4" aria-hidden="true" /> 1つ戻す
             </button>
             {s.phase === "done" ? (
               <button type="button" onClick={() => setS(INITIAL)} className={buttonClass("ghost", "md")}>
-                Discard
+                破棄
               </button>
             ) : (
               <button type="button" onClick={() => setS({ ...s, phase: "done", finishedAt: Date.now(), segStartedAt: null, roxStartedAt: null })} className={buttonClass("ghost", "md")}>
-                End here
+                ここで終了
               </button>
             )}
           </div>

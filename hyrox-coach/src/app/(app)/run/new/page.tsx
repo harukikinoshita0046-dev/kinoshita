@@ -10,7 +10,7 @@ import { listRuns } from "@/lib/data/runs";
 import { isUuid } from "@/lib/data/util";
 import type { RunType } from "@/lib/domain/running";
 
-export const metadata: Metadata = { title: "Log run" };
+export const metadata: Metadata = { title: "ランを記録" };
 
 export default async function NewRunPage({ searchParams }: PageProps<"/run/new">) {
   const { plan: planParam } = await searchParams;
@@ -35,17 +35,17 @@ export default async function NewRunPage({ searchParams }: PageProps<"/run/new">
     <Page>
       <div className="pt-4">
         <Link href="/today" className="flex items-center gap-1 text-sm font-semibold text-muted">
-          <ArrowLeft className="h-4 w-4" /> Today
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" /> TODAY
         </Link>
       </div>
-      <PageHeader eyebrow={plan ? plan.title : "Running"} title="LOG RUN" />
+      <PageHeader eyebrow={plan ? plan.title : "ランニング"} title="LOG RUN" />
       <RunForm
         today={today}
         planId={plan?.id ?? null}
         defaults={{ run_type: runType, distance_km: Math.round(distanceKm * 100) / 100, duration_seconds: Math.round(distanceKm * pace) }}
       />
       <p className="mt-4 text-center text-xs text-faint">
-        Apple Watch auto-import is Phase 2 (needs the iOS companion app). Until then, enter the summary from the Workout app.
+        Apple Watch からの自動取り込みは Phase 2（iOS アプリが必要）で対応予定です。それまではワークアウトアプリの概要を入力してください。
       </p>
     </Page>
   );

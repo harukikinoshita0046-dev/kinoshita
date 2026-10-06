@@ -27,9 +27,9 @@ export function ReadinessCard({
   return (
     <section className="rounded-2xl bg-surface p-4" data-testid="readiness-card">
       <div className="flex items-start justify-between">
-        <p className="label">Readiness</p>
+        <p className="label">コンディション</p>
         <Link href="/checkin" className="flex items-center gap-0.5 text-xs font-semibold text-muted active:text-text">
-          {checkedIn ? "Check-in done" : "Morning check-in"}
+          {checkedIn ? "チェックイン済み" : "朝のチェックイン"}
           <ChevronRight className="h-4 w-4" />
         </Link>
       </div>
@@ -49,14 +49,14 @@ export function ReadinessCard({
       ) : (
         <Link href="/checkin" className="mt-2 block">
           <p className="text-2xl font-extrabold">CHECK IN</p>
-          <p className="mt-1 text-sm text-muted">Sleep, HRV, resting HR and how you feel → readiness. Takes 20 seconds.</p>
+          <p className="mt-1 text-sm text-muted">睡眠・HRV・安静時心拍・体感からコンディションを算出します。20秒で完了。</p>
         </Link>
       )}
 
       <div className="mt-4 grid grid-cols-4 gap-1 border-t border-line pt-3" data-testid="today-metrics">
         {metrics.map((m) => (
           <Link key={m.label} href={m.href} className="min-w-0 rounded-xl px-1 py-1 active:bg-surface-2">
-            <p className="truncate text-[10px] font-semibold uppercase tracking-wider text-muted">{m.label}</p>
+            <p className="truncate text-[11px] font-semibold tracking-wide text-muted">{m.label}</p>
             <p className="num mt-1 truncate text-lg font-bold leading-none">
               {m.value}
               {m.unit && m.value !== "–" ? <span className="ml-0.5 text-[11px] font-semibold text-muted">{m.unit}</span> : null}

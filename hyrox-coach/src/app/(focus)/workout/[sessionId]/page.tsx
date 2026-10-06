@@ -8,7 +8,7 @@ import { getExerciseHistories } from "@/lib/data/stats";
 import { isUuid } from "@/lib/data/util";
 import { buildSlot, fallbackExercise, toLoggerExercise, type LoggedSet } from "@/lib/logger";
 
-export const metadata: Metadata = { title: "Workout" };
+export const metadata: Metadata = { title: "トレーニング" };
 
 export default async function WorkoutPage({ params }: PageProps<"/workout/[sessionId]">) {
   const { sessionId } = await params;

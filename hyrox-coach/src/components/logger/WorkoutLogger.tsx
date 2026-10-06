@@ -270,7 +270,7 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
         });
       }
     } catch {
-      setError("Could not update the workout. Check your connection and try again.");
+      setError("トレーニングを更新できませんでした。通信状況を確認して、もう一度お試しください。");
     }
   };
 
@@ -306,7 +306,7 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
     <div className="mx-auto flex min-h-dvh max-w-md flex-col pt-safe">
       {/* Header */}
       <header className="sticky top-0 z-30 flex items-center gap-2 bg-black/95 px-3 py-2 backdrop-blur">
-        <button type="button" onClick={() => router.push("/today")} aria-label="Close" className="rounded-full bg-surface-2 p-2.5 text-muted">
+        <button type="button" onClick={() => router.push("/today")} aria-label="閉じる" className="rounded-full bg-surface-2 p-2.5 text-muted">
           <X className="h-5 w-5" />
         </button>
         <div className="min-w-0 flex-1 text-center">
@@ -316,16 +316,16 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
             <span className="num">
               {totalDone}/{totalTarget || "–"}
             </span>{" "}
-            sets {queuedCount > 0 ? <QueueSync compact /> : null}
+            セット {queuedCount > 0 ? <QueueSync compact /> : null}
           </p>
         </div>
         <button type="button" onClick={() => setFinishOpen(true)} className={buttonClass("primary", "sm")} data-testid="finish-open">
-          FINISH
+          終了
         </button>
       </header>
 
       {/* Exercise chips */}
-      <nav className="flex gap-1.5 overflow-x-auto px-3 pb-2 pt-1 [scrollbar-width:none]" aria-label="Exercises">
+      <nav className="flex gap-1.5 overflow-x-auto px-3 pb-2 pt-1 [scrollbar-width:none]" aria-label="種目一覧">
         {slots.map((s, i) => {
           const done = setsFor(s.planExerciseId).length;
           const complete = s.target.sets != null && done >= s.target.sets;
@@ -334,7 +334,7 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
               key={s.planExerciseId}
               type="button"
               onClick={() => setActiveId(s.planExerciseId)}
-              aria-current={i === activeIndex}
+              aria-current={i === activeIndex ? "step" : undefined}
               className={cn(
                 "flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold",
                 i === activeIndex ? "bg-text text-black" : complete ? "bg-push/15 text-push" : "bg-surface-2 text-muted",
@@ -354,7 +354,7 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
           className="flex shrink-0 items-center gap-1 rounded-full border border-dashed border-line px-3 py-1.5 text-xs font-bold text-muted"
           data-testid="add-exercise"
         >
-          <Plus className="h-3.5 w-3.5" /> Exercise
+          <Plus className="h-3.5 w-3.5" aria-hidden="true" /> 種目を追加
         </button>
       </nav>
 
@@ -368,34 +368,34 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
               <h1 className="text-2xl font-extrabold uppercase leading-tight tracking-tight" data-testid="exercise-name">
                 {slot.exercise.name}
               </h1>
-              <button type="button" onClick={() => setMenuOpen(true)} aria-label="Exercise options" className="rounded-full bg-surface-2 p-2 text-muted">
+              <button type="button" onClick={() => setMenuOpen(true)} aria-label="種目のオプション" className="rounded-full bg-surface-2 p-2 text-muted">
                 <Ellipsis className="h-5 w-5" />
               </button>
             </div>
             <dl className="mt-1.5 space-y-0.5 text-sm">
               <div className="flex gap-3">
-                <dt className="label w-16 shrink-0 pt-px">Target</dt>
+                <dt className="label w-12 shrink-0 pt-px">目標</dt>
                 <dd className="num font-semibold" data-testid="target-line">
                   {targetLine(slot) || "–"}
                 </dd>
               </div>
               <div className="flex gap-3">
-                <dt className="label w-16 shrink-0 pt-px">Previous</dt>
+                <dt className="label w-12 shrink-0 pt-px">前回</dt>
                 <dd className="num text-muted" data-testid="previous-line">
                   {slot.previous
                     ? `${compactSetSummary(slot.previous.sets, slot.exercise.unit)}${slot.previous.avgRpe ? ` · RPE ${slot.previous.avgRpe}` : ""}`
-                    : "First time"}
+                    : "初めての種目"}
                 </dd>
               </div>
               {pbLine(slot) ? (
                 <div className="flex gap-3">
-                  <dt className="label w-16 shrink-0 pt-px">PB</dt>
+                  <dt className="label w-12 shrink-0 pt-px">PB</dt>
                   <dd className="num text-muted">{pbLine(slot)}</dd>
                 </div>
               ) : null}
             </dl>
             {slot.target.note ? <p className="mt-2 rounded-xl bg-accent/10 px-3 py-1.5 text-xs text-accent">{slot.target.note}</p> : null}
-            {slot.originalExerciseId ? <p className="mt-2 text-xs text-faint">Swapped from {slot.originalExerciseId.replaceAll("_", " ")}</p> : null}
+            {slot.originalExerciseId ? <p className="mt-2 text-xs text-faint">入れ替え前: {slot.originalExerciseId.replaceAll("_", " ")}</p> : null}
           </section>
 
           {/* Completed sets (tap to edit) */}
@@ -412,12 +412,12 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
                       })
                     }
                     className="num flex items-center gap-1.5 rounded-xl bg-surface px-2.5 py-2 text-sm active:bg-surface-2"
-                    aria-label={`Edit set ${i + 1}`}
+                    aria-label={`セット${i + 1}を編集`}
                   >
                     <Check className="h-3.5 w-3.5 text-push" strokeWidth={3} />
                     <span className="font-bold">{formatSet(toSetLike(s), slot.exercise.unit)}</span>
                     {s.rpe ? <span className="text-xs text-muted">@{s.rpe}</span> : null}
-                    {s.sync === "queued" ? <CloudOff className="h-3.5 w-3.5 text-low" aria-label="Not synced yet" /> : null}
+                    {s.sync === "queued" ? <CloudOff className="h-3.5 w-3.5 text-low" aria-label="未同期" /> : null}
                   </button>
                 </li>
               ))}
@@ -431,7 +431,7 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
                 SET {slotSets.length + 1}
                 {slot.target.sets ? <span className="text-faint"> / {slot.target.sets}</span> : null}
               </h2>
-              {extra ? <span className="text-xs font-bold text-push">TARGET DONE · EXTRA SET</span> : null}
+              {extra ? <span className="text-xs font-bold text-push">目標達成 · 追加セット</span> : null}
             </div>
             <SetFields exercise={slot.exercise} draft={draft} onChange={updateDraft} />
           </section>
@@ -441,11 +441,11 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
               const next = nextIncompleteAfter(activeIndex, sets);
               return next ? (
                 <button type="button" onClick={() => setActiveId(next.planExerciseId)} className={buttonClass("secondary", "lg", "w-full")}>
-                  NEXT: {next.exercise.name} <ChevronRight className="h-5 w-5" />
+                  次へ: {next.exercise.name} <ChevronRight className="h-5 w-5" aria-hidden="true" />
                 </button>
               ) : (
                 <button type="button" onClick={() => setFinishOpen(true)} className={buttonClass("secondary", "lg", "w-full")}>
-                  ALL DONE · FINISH WORKOUT
+                  全種目完了 · トレーニングを終了
                 </button>
               );
             })()
@@ -453,10 +453,10 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
         </main>
       ) : (
         <main className="flex-1 px-4 pt-10 text-center">
-          <p className="text-lg font-bold">No exercises yet</p>
-          <p className="mt-1 text-sm text-muted">Add the first exercise to start logging.</p>
+          <p className="text-lg font-bold">まだ種目がありません</p>
+          <p className="mt-1 text-sm text-muted">最初の種目を追加して記録を始めましょう。</p>
           <button type="button" onClick={() => setPicker({ mode: "add" })} className={buttonClass("primary", "lg", "mt-6 w-full")}>
-            <Plus className="h-5 w-5" /> ADD EXERCISE
+            <Plus className="h-5 w-5" aria-hidden="true" /> 種目を追加
           </button>
         </main>
       )}
@@ -482,7 +482,7 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
                 className={buttonClass("primary", "lg", "w-full text-xl")}
                 data-testid="complete-set"
               >
-                <Check className="h-7 w-7" strokeWidth={3} /> COMPLETE SET
+                <Check className="h-7 w-7" strokeWidth={3} aria-hidden="true" /> セット完了
               </button>
             )}
           </div>
@@ -490,7 +490,7 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
       ) : null}
 
       {/* Edit a completed set */}
-      <Sheet open={editing != null} onClose={() => setEditing(null)} title="Edit set">
+      <Sheet open={editing != null} onClose={() => setEditing(null)} title="セットを編集">
         {editing && slot ? (
           <div className="space-y-4 pb-4">
             <SetFields
@@ -500,10 +500,10 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
             />
             <div className="grid grid-cols-2 gap-2">
               <button type="button" onClick={deleteEditing} className={buttonClass("danger", "lg")}>
-                DELETE
+                削除
               </button>
               <button type="button" onClick={saveEdit} className={buttonClass("primary", "lg")}>
-                SAVE
+                保存
               </button>
             </div>
           </div>
@@ -511,7 +511,7 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
       </Sheet>
 
       {/* Exercise options */}
-      <Sheet open={menuOpen} onClose={() => setMenuOpen(false)} title={slot?.exercise.name ?? "Exercise"}>
+      <Sheet open={menuOpen} onClose={() => setMenuOpen(false)} title={slot?.exercise.name ?? "種目"}>
         <div className="space-y-2 pb-4">
           <button
             type="button"
@@ -522,7 +522,7 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
             }}
             className={buttonClass("secondary", "lg", "w-full justify-start")}
           >
-            <Repeat2 className="h-5 w-5" /> Swap exercise {slotSets.length > 0 ? "(only before the first set)" : ""}
+            <Repeat2 className="h-5 w-5" aria-hidden="true" /> 種目を入れ替え{slotSets.length > 0 ? "（1セット目の記録前のみ）" : ""}
           </button>
           <button
             type="button"
@@ -532,42 +532,43 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
             }}
             className={buttonClass("secondary", "lg", "w-full justify-start")}
           >
-            <Plus className="h-5 w-5" /> Add another exercise
+            <Plus className="h-5 w-5" aria-hidden="true" /> 種目を追加
           </button>
         </div>
       </Sheet>
 
       <ExercisePicker
         open={picker != null}
-        title={picker?.mode === "swap" ? "Swap exercise" : "Add exercise"}
+        title={picker?.mode === "swap" ? "種目を入れ替え" : "種目を追加"}
         catalog={catalog}
         onClose={() => setPicker(null)}
         onPick={(e) => void onPick(e)}
       />
 
       {/* Finish */}
-      <Sheet open={finishOpen} onClose={() => setFinishOpen(false)} title="Finish workout">
+      <Sheet open={finishOpen} onClose={() => setFinishOpen(false)} title="トレーニングを終了">
         <div className="space-y-4 pb-4">
           <div>
-            <p className="label mb-2">Session RPE — how hard was the whole session?</p>
+            <p className="label mb-2">セッションRPE（全体のきつさ）</p>
             <NumberRow values={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]} value={sessionRpe} onChange={setSessionRpe} testId="session-rpe" />
           </div>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Notes for your coach (optional)"
+            placeholder="コーチへのメモ（任意）"
+            aria-label="コーチへのメモ（任意）"
             rows={3}
             maxLength={2000}
-            className="w-full rounded-xl border border-line bg-surface-2 p-3 text-sm focus:border-accent focus:outline-none"
+            className="w-full rounded-xl border border-line bg-surface-2 p-3 text-base focus:border-accent focus:outline-none"
           />
           <button type="button" onClick={finish} disabled={pending} className={buttonClass("primary", "lg", "w-full")} data-testid="finish-save">
-            {pending ? "SAVING…" : "SAVE WORKOUT"}
+            {pending ? "保存中…" : "トレーニングを保存"}
           </button>
           <button
             type="button"
             disabled={pending}
             onClick={() => {
-              if (window.confirm("Discard this workout? Logged sets are kept but the session is marked abandoned.")) {
+              if (window.confirm("このトレーニングを破棄しますか？記録済みのセットは残りますが、セッションは中断扱いになります。")) {
                 startTransition(async () => {
                   await discardWorkout(session.id);
                 });
@@ -575,7 +576,7 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
             }}
             className={buttonClass("ghost", "md", "w-full text-recover")}
           >
-            Discard workout
+            トレーニングを破棄
           </button>
         </div>
       </Sheet>

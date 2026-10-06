@@ -34,7 +34,7 @@ export function formatPaceRange(min: number | null, max: number | null): string 
   return null;
 }
 
-/** "4 × 6-8" + ["82.5 kg", "RPE 8"]; "6 × 1 km" + ["4:20-4:30 /km", "Z4", "rest 90s"]. */
+/** "4 × 6-8" + ["82.5 kg", "RPE 8"]; "6 × 1 km" + ["4:20-4:30 /km", "Z4", "レスト90秒"]. */
 export function formatPlanTarget(t: PlanTarget, unit: UnitType): { main: string; details: string[] } {
   const sets = t.target_sets ?? null;
   const reps = formatRepRange(t.target_reps_min, t.target_reps_max);
@@ -46,7 +46,7 @@ export function formatPlanTarget(t: PlanTarget, unit: UnitType): { main: string;
   } else {
     work = reps;
   }
-  const main = sets && work ? `${sets} × ${work}` : sets ? `${sets} sets` : (work ?? "");
+  const main = sets && work ? `${sets} × ${work}` : sets ? `${sets}セット` : (work ?? "");
 
   const details: string[] = [];
   if (t.target_weight != null && unit !== "distance_time") {
@@ -59,6 +59,6 @@ export function formatPlanTarget(t: PlanTarget, unit: UnitType): { main: string;
   if (pace) details.push(pace);
   if (t.target_hr_zone) details.push(`Z${t.target_hr_zone}`);
   if (t.target_rpe) details.push(`RPE ${formatNumber(t.target_rpe, 1)}`);
-  if (t.rest_seconds != null) details.push(`rest ${t.rest_seconds >= 120 && t.rest_seconds % 60 === 0 ? `${t.rest_seconds / 60}min` : `${t.rest_seconds}s`}`);
+  if (t.rest_seconds != null) details.push(`レスト${t.rest_seconds >= 120 && t.rest_seconds % 60 === 0 ? `${t.rest_seconds / 60}分` : `${t.rest_seconds}秒`}`);
   return { main, details };
 }

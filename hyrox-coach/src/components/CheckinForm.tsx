@@ -44,19 +44,19 @@ export function CheckinForm({ date, initial, last }: { date: string; initial: Va
     <div className="space-y-3">
       <div className={card}>
         <div className="mb-1 flex items-baseline justify-between">
-          <span className="label">Weight</span>
-          {last.weight != null ? <span className="num text-[11px] text-faint">last {formatNumber(last.weight, 1)} kg</span> : null}
+          <span className="label">体重</span>
+          {last.weight != null ? <span className="num text-[11px] text-faint">前回 {formatNumber(last.weight, 1)} kg</span> : null}
         </div>
-        <Stepper label="weight" value={v.weight} onChange={(x) => set("weight", x)} step={0.1} min={20} max={300} unit="kg" format={(x) => formatNumber(x, 1)} startAt={last.weight} testId="checkin-weight" />
+        <Stepper label="体重" value={v.weight} onChange={(x) => set("weight", x)} step={0.1} min={20} max={300} unit="kg" format={(x) => formatNumber(x, 1)} startAt={last.weight} testId="checkin-weight" />
       </div>
 
       <div className={card}>
         <div className="mb-1 flex items-baseline justify-between">
-          <span className="label">Sleep</span>
-          <span className="text-[11px] text-faint">last night</span>
+          <span className="label">睡眠</span>
+          <span className="text-[11px] text-faint">昨夜</span>
         </div>
         <Stepper
-          label="sleep"
+          label="睡眠時間"
           value={v.sleep_minutes}
           onChange={(x) => set("sleep_minutes", Math.round(x))}
           step={5}
@@ -72,30 +72,36 @@ export function CheckinForm({ date, initial, last }: { date: string; initial: Va
 
       <div className="grid grid-cols-2 gap-3">
         <div className={card}>
-          <span className="label">HRV (ms)</span>
+          <span className="label">HRV（ミリ秒）</span>
           <div className="mt-1">
             <Stepper label="HRV" value={v.hrv} onChange={(x) => set("hrv", Math.round(x))} step={1} min={1} max={300} size="md" startAt={last.hrv} inputMode="numeric" testId="checkin-hrv" />
           </div>
         </div>
         <div className={card}>
-          <span className="label">Resting HR</span>
+          <span className="label">安静時心拍</span>
           <div className="mt-1">
-            <Stepper label="resting heart rate" value={v.resting_hr} onChange={(x) => set("resting_hr", Math.round(x))} step={1} min={25} max={150} size="md" startAt={last.resting_hr} inputMode="numeric" testId="checkin-rhr" />
+            <Stepper label="安静時心拍" value={v.resting_hr} onChange={(x) => set("resting_hr", Math.round(x))} step={1} min={25} max={150} size="md" startAt={last.resting_hr} inputMode="numeric" testId="checkin-rhr" />
           </div>
         </div>
       </div>
 
       <div className={`${card} space-y-4`}>
-        <ScalePicker label="Muscle soreness · 筋肉痛" name="soreness" value={v.soreness} onChange={(x) => set("soreness", x)} lowLabel="1 none" highLabel="5 very sore" invert />
-        <ScalePicker label="Fatigue · 疲労" name="fatigue" value={v.fatigue} onChange={(x) => set("fatigue", x)} lowLabel="1 fresh" highLabel="5 exhausted" invert />
-        <ScalePicker label="Motivation · やる気" name="motivation" value={v.motivation} onChange={(x) => set("motivation", x)} lowLabel="1 low" highLabel="5 high" />
-        <input
-          className="h-11 w-full rounded-xl border border-line bg-surface-2 px-3 text-sm focus:border-accent focus:outline-none"
-          placeholder="Note for your coach (e.g. 昨日飲んだ, 脚が重い)"
-          value={v.note ?? ""}
-          maxLength={500}
-          onChange={(e) => set("note", e.target.value || null)}
-        />
+        <ScalePicker label="筋肉痛" name="soreness" value={v.soreness} onChange={(x) => set("soreness", x)} lowLabel="1 なし" highLabel="5 とても強い" invert />
+        <ScalePicker label="疲労" name="fatigue" value={v.fatigue} onChange={(x) => set("fatigue", x)} lowLabel="1 元気" highLabel="5 ヘトヘト" invert />
+        <ScalePicker label="やる気" name="motivation" value={v.motivation} onChange={(x) => set("motivation", x)} lowLabel="1 低い" highLabel="5 高い" />
+        <div>
+          <label htmlFor="checkin-note" className="label mb-1.5 block">
+            コーチへのメモ（任意）
+          </label>
+          <input
+            id="checkin-note"
+            className="h-11 w-full rounded-xl border border-line bg-surface-2 px-3 text-base focus:border-accent focus:outline-none"
+            placeholder="例：昨日飲んだ、脚が重い"
+            value={v.note ?? ""}
+            maxLength={500}
+            onChange={(e) => set("note", e.target.value || null)}
+          />
+        </div>
       </div>
 
       <ErrorText>{error}</ErrorText>
@@ -111,10 +117,10 @@ export function CheckinForm({ date, initial, last }: { date: string; initial: Va
           })
         }
       >
-        {pending ? "SAVING…" : "SAVE CHECK-IN"}
+        {pending ? "保存中…" : "チェックインを保存"}
       </button>
       <p className="text-center text-[11px] text-faint">
-        Apple Health sync (sleep, HRV, resting HR, weight) needs the Phase 2 iOS companion. You can also push values with an iOS Shortcut — see Profile → Apple Health.
+        Apple ヘルスケアとの自動同期（睡眠・HRV・安静時心拍・体重）は Phase 2 の iOS アプリで対応予定です。iOS ショートカットから送ることもできます（PROFILE → Apple Health）。
       </p>
     </div>
   );

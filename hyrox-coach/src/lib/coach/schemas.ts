@@ -179,7 +179,7 @@ export function toPlanInput(body: z.infer<typeof createPlanBody>, exercises: Exe
   const workoutType = resolveWorkoutType(body.workout_type);
   return {
     date: resolveDate(body.date, today),
-    title: body.title ?? (workoutType === "other" ? body.workout_type : `${WORKOUT_TYPE_LABELS[workoutType]} workout`),
+    title: body.title ?? (workoutType === "other" ? body.workout_type : `${WORKOUT_TYPE_LABELS[workoutType]}トレーニング`),
     workout_type: workoutType,
     created_by: "AI",
     coach_reason: body.coach_reason ?? null,

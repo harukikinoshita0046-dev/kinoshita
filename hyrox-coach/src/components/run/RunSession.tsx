@@ -101,7 +101,7 @@ export function RunSession({ plan }: { plan: RunSessionPlan }) {
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col px-4 pt-safe">
       <header className="flex items-center justify-between py-3">
-        <button type="button" onClick={() => router.push("/today")} aria-label="Close" className="rounded-full bg-surface-2 p-2.5 text-muted">
+        <button type="button" onClick={() => router.push("/today")} aria-label="閉じる" className="rounded-full bg-surface-2 p-2.5 text-muted">
           <X className="h-5 w-5" />
         </button>
         <p className="font-bold">{plan.title}</p>
@@ -115,16 +115,16 @@ export function RunSession({ plan }: { plan: RunSessionPlan }) {
         </p>
         <div className="mt-2 grid grid-cols-3 gap-3 text-sm">
           <div>
-            <p className="label">Target pace</p>
+            <p className="label">目標ペース</p>
             <p className="num font-bold">{formatPaceRange(plan.paceMin, plan.paceMax) ?? "–"}</p>
           </div>
           <div>
-            <p className="label">Rest</p>
-            <p className="num font-bold">{plan.restSeconds ? `${plan.restSeconds} sec` : "–"}</p>
+            <p className="label">レスト</p>
+            <p className="num font-bold">{plan.restSeconds ? `${plan.restSeconds}秒` : "–"}</p>
           </div>
           <div>
-            <p className="label">Target HR</p>
-            <p className="num font-bold">{plan.hrZone ? `Zone ${plan.hrZone}` : "–"}</p>
+            <p className="label">目標心拍</p>
+            <p className="num font-bold">{plan.hrZone ? `ゾーン${plan.hrZone}` : "–"}</p>
           </div>
         </div>
         {plan.note ? <p className="mt-2 text-sm text-muted">{plan.note}</p> : null}
@@ -132,27 +132,27 @@ export function RunSession({ plan }: { plan: RunSessionPlan }) {
 
       <section className="flex flex-1 flex-col items-center justify-center py-6 text-center" aria-live="polite">
         {live.phase === "idle" ? (
-          <p className="text-muted">Start your watch workout too — heart rate import comes with the iOS app (Phase 2).</p>
+          <p className="text-muted">腕時計のワークアウトも一緒に開始してください。心拍の取り込みは iOS アプリ（Phase 2）で対応予定です。</p>
         ) : live.phase === "work" ? (
           <>
             <p className="label text-run">
-              REP {repNo} / {plan.reps}
+              {repNo} 本目 / {plan.reps}
             </p>
             <p className="num mt-2 text-8xl font-extrabold leading-none" data-testid="rep-clock">
               {formatDuration(repElapsed)}
             </p>
-            {targetTime ? <p className="num mt-3 text-muted">target {targetTime}</p> : null}
+            {targetTime ? <p className="num mt-3 text-muted">目標 {targetTime}</p> : null}
           </>
         ) : live.phase === "rest" ? (
           <>
-            <p className="label text-accent">REST · next rep {repNo}</p>
+            <p className="label text-accent">レスト · 次は {repNo} 本目</p>
             <p className="num mt-2 text-8xl font-extrabold leading-none text-accent">{formatDuration(restLeft)}</p>
           </>
         ) : (
           <>
-            <p className="label text-push">DONE</p>
+            <p className="label text-push">完了</p>
             <p className="num mt-2 text-6xl font-extrabold">{formatDuration(total)}</p>
-            <p className="mt-1 text-sm text-muted">{live.laps.length} laps</p>
+            <p className="mt-1 text-sm text-muted">{live.laps.length} 本</p>
           </>
         )}
       </section>
@@ -161,9 +161,9 @@ export function RunSession({ plan }: { plan: RunSessionPlan }) {
         <ol className="mb-4 grid grid-cols-3 gap-1.5" data-testid="laps">
           {live.laps.map((l, i) => (
             <li key={i} className="num rounded-xl bg-surface px-2 py-2 text-center">
-              <span className="block text-[10px] text-faint">#{i + 1}</span>
+              <span className="block text-[11px] text-faint">{i + 1} 本目</span>
               <span className={cn("text-lg font-bold", lapTone(l, plan))}>{formatDuration(l.time_seconds)}</span>
-              <span className="block text-[10px] text-muted">{formatPace((l.time_seconds / l.distance_m) * 1000)}/km</span>
+              <span className="block text-[11px] text-muted">{formatPace((l.time_seconds / l.distance_m) * 1000)}/km</span>
             </li>
           ))}
         </ol>
@@ -172,28 +172,28 @@ export function RunSession({ plan }: { plan: RunSessionPlan }) {
       <div className="pb-safe space-y-2 pb-4">
         {live.phase === "idle" ? (
           <button type="button" onClick={start} className={buttonClass("primary", "lg", "h-20 w-full text-xl")} data-testid="run-start">
-            <Play className="h-6 w-6 fill-current" /> START
+            <Play className="h-6 w-6 fill-current" aria-hidden="true" /> スタート
           </button>
         ) : live.phase === "work" ? (
           <>
             <button type="button" onClick={lap} className={buttonClass("primary", "lg", "h-20 w-full text-xl")} data-testid="run-lap">
-              <Flag className="h-6 w-6" /> {live.laps.length + 1 >= plan.reps ? "FINISH REP" : "LAP"}
+              <Flag className="h-6 w-6" aria-hidden="true" /> {live.laps.length + 1 >= plan.reps ? "最後の1本を終了" : "ラップ"}
             </button>
             <button type="button" onClick={endEarly} className={buttonClass("ghost", "md", "w-full")}>
-              <Square className="h-4 w-4" /> End early
+              <Square className="h-4 w-4" aria-hidden="true" /> ここで終了
             </button>
           </>
         ) : live.phase === "rest" ? (
           <button type="button" onClick={skipRest} className={buttonClass("secondary", "lg", "h-20 w-full text-xl")} data-testid="run-skip-rest">
-            SKIP REST · GO
+            レストをスキップ · 次へ
           </button>
         ) : (
           <>
             <button type="button" onClick={save} className={buttonClass("primary", "lg", "h-20 w-full text-xl")} data-testid="run-save">
-              SAVE RUN
+              ランを保存
             </button>
             <button type="button" onClick={() => setLive(INITIAL)} className={buttonClass("ghost", "md", "w-full")}>
-              Discard
+              破棄
             </button>
           </>
         )}

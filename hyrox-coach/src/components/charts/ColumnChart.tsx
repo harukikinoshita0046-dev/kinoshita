@@ -111,11 +111,11 @@ export function ColumnChart({
         </div>
       ) : null}
       <details className="mt-1">
-        <summary className="cursor-pointer text-[11px] text-faint">Data</summary>
+        <summary className="flex min-h-9 cursor-pointer items-center text-xs text-faint">データを表で見る</summary>
         <table id={tableId} className="num mt-1 w-full text-xs">
           <thead>
             <tr className="text-left text-muted">
-              <th className="font-semibold">Week</th>
+              <th className="font-semibold">週</th>
               {categories.map((c) => (
                 <th key={c.key} className="text-right font-semibold">
                   {c.label}

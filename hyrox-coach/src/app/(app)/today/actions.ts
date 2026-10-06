@@ -21,7 +21,7 @@ export async function startWorkout(planId: string) {
 export async function startQuickWorkout() {
   const { supabase, userId } = await requireUser();
   const today = profileToday(await getProfile(supabase, userId));
-  const sessionId = await startQuickSession(supabase, userId, today, "Quick Workout", "other");
+  const sessionId = await startQuickSession(supabase, userId, today, "クイックトレーニング", "other");
   redirect(`/workout/${sessionId}`);
 }
 

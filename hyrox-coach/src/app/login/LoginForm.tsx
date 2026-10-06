@@ -14,36 +14,40 @@ export function LoginForm({ next }: { next?: string }) {
   return (
     <form action={mode === "signin" ? signInAction : signUpAction} className="space-y-3">
       <input type="hidden" name="next" value={next ?? "/today"} />
-      <input
-        className={inputClass}
-        type="email"
-        name="email"
-        autoComplete="email"
-        placeholder="Email"
-        required
-        aria-label="Email"
-      />
-      <input
-        className={inputClass}
-        type="password"
-        name="password"
-        autoComplete={mode === "signin" ? "current-password" : "new-password"}
-        placeholder="Password (8+ characters)"
-        required
-        minLength={8}
-        aria-label="Password"
-      />
+      <label className="block">
+        <span className="label">メールアドレス</span>
+        <input
+          className={`${inputClass} mt-1.5`}
+          type="email"
+          name="email"
+          autoComplete="email"
+          inputMode="email"
+          placeholder="you@example.com"
+          required
+        />
+      </label>
+      <label className="block">
+        <span className="label">パスワード（8文字以上）</span>
+        <input
+          className={`${inputClass} mt-1.5`}
+          type="password"
+          name="password"
+          autoComplete={mode === "signin" ? "current-password" : "new-password"}
+          required
+          minLength={8}
+        />
+      </label>
       <ErrorText>{state.error}</ErrorText>
       {signUpState.message ? <p className="rounded-xl bg-push/10 px-3 py-2 text-sm text-push">{signUpState.message}</p> : null}
       <button type="submit" disabled={pending} className={buttonClass("primary", "lg", "w-full")}>
-        {pending ? "…" : mode === "signin" ? "SIGN IN" : "CREATE ACCOUNT"}
+        {pending ? "処理中…" : mode === "signin" ? "ログイン" : "アカウントを作成"}
       </button>
       <button
         type="button"
         className={buttonClass("ghost", "md", "w-full")}
         onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
       >
-        {mode === "signin" ? "No account yet? Create one" : "Have an account? Sign in"}
+        {mode === "signin" ? "はじめての方は新規登録" : "登録済みの方はログイン"}
       </button>
     </form>
   );

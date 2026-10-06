@@ -38,7 +38,7 @@ export function generateInsights(input: InsightInput): Insight[] {
       id: "weight-down-volume-up",
       category: "body",
       tone: "positive",
-      text: `体重（7日平均）は${Math.abs(w.weeklyChange).toFixed(1)}kg減少していますが、${volumeUp.name}のVolumeは${round(volumeUp.change, 0)}%増加しています。`,
+      text: `体重（7日平均）は${Math.abs(w.weeklyChange).toFixed(1)}kg減少していますが、${volumeUp.name}のボリュームは${round(volumeUp.change, 0)}%増加しています。`,
     });
   } else if (w?.weeklyChange != null) {
     const rate = w.weeklyRatePct;
@@ -65,7 +65,7 @@ export function generateInsights(input: InsightInput): Insight[] {
       id: "running-volume",
       category: "running",
       tone: runChange > 30 ? "warning" : "neutral",
-      text: `Running Volumeが先週比${Math.abs(round(runChange, 0))}%${runChange > 0 ? "増加" : "減少"}しています（${input.runningKm.thisWeek.toFixed(1)}km）。`,
+      text: `走行距離が先週比${Math.abs(round(runChange, 0))}%${runChange > 0 ? "増加" : "減少"}しています（${input.runningKm.thisWeek.toFixed(1)}km）。`,
     });
   }
 
@@ -74,7 +74,7 @@ export function generateInsights(input: InsightInput): Insight[] {
       id: "hyrox-weakest",
       category: "hyrox",
       tone: "neutral",
-      text: `${input.weakestStation.label}がHYROX Stationsの中で相対的に弱いです。`,
+      text: `${input.weakestStation.label}がHYROX ステーションの中で相対的に弱いです。`,
     });
   }
 
@@ -92,7 +92,7 @@ export function generateInsights(input: InsightInput): Insight[] {
       id: "acwr-high",
       category: "training",
       tone: "warning",
-      text: `直近7日のトレーニング負荷が通常の${input.acwr.toFixed(1)}倍です。強度かVolumeの調整を検討してください。`,
+      text: `直近7日のトレーニング負荷が通常の${input.acwr.toFixed(1)}倍です。強度かボリュームの調整を検討してください。`,
     });
   }
 

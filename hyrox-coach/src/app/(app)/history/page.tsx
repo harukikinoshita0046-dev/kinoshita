@@ -12,7 +12,7 @@ import { formatDuration, formatMinutes, formatNumber, formatPace } from "@/lib/d
 import { runTypeLabel } from "@/lib/domain/running";
 import { workoutTypeLabel } from "@/lib/domain/workout-types";
 
-export const metadata: Metadata = { title: "History" };
+export const metadata: Metadata = { title: "履歴" };
 
 type Item = {
   key: string;
@@ -27,9 +27,9 @@ type Item = {
 };
 
 const FILTERS = [
-  { key: "all", label: "ALL" },
-  { key: "workouts", label: "WORKOUTS" },
-  { key: "runs", label: "RUNS" },
+  { key: "all", label: "すべて" },
+  { key: "workouts", label: "筋トレ" },
+  { key: "runs", label: "ラン" },
   { key: "hyrox", label: "HYROX" },
 ] as const;
 
@@ -59,13 +59,13 @@ export default async function HistoryPage({ searchParams }: PageProps<"/history"
       subtitle: [
         workoutTypeLabel(s.workout_type),
         s.duration_seconds ? formatMinutes(s.duration_seconds / 60) : null,
-        `${s.totalSets} sets`,
+        `${s.totalSets}セット`,
         s.totalVolumeKg ? `${formatNumber(s.totalVolumeKg / 1000, 1)} t` : null,
       ]
         .filter(Boolean)
         .join(" · "),
       value: s.session_rpe ? `RPE ${s.session_rpe}` : "",
-      badge: s.status === "in_progress" ? "IN PROGRESS" : undefined,
+      badge: s.status === "in_progress" ? "実施中" : undefined,
     })),
     ...runs.map((r) => ({
       key: `r-${r.id}`,
@@ -85,8 +85,8 @@ export default async function HistoryPage({ searchParams }: PageProps<"/history"
       date: h.date,
       sortAt: h.started_at ?? `${h.date}T12:00:00Z`,
       href: `/hyrox/results/${h.id}`,
-      title: h.name || (h.event_type === "race" ? "HYROX Race" : "HYROX Simulation"),
-      subtitle: h.event_type === "race" ? "Race" : h.event_type === "simulation" ? "Simulation" : "Partial",
+      title: h.name || (h.event_type === "race" ? "HYROX レース" : "HYROX シミュレーション"),
+      subtitle: h.event_type === "race" ? "レース" : h.event_type === "simulation" ? "シミュレーション" : "一部のみ",
       value: formatDuration(h.total_seconds),
     })),
   ].sort((a, b) => b.date.localeCompare(a.date) || b.sortAt.localeCompare(a.sortAt));
@@ -101,13 +101,14 @@ export default async function HistoryPage({ searchParams }: PageProps<"/history"
   return (
     <Page>
       <PageHeader title="HISTORY" />
-      <nav className="mb-4 flex gap-1.5" aria-label="Filter">
+      <nav className="mb-4 flex gap-1.5" aria-label="種類で絞り込み">
         {FILTERS.map((f) => (
           <Link
             key={f.key}
+            aria-current={filter === f.key ? "page" : undefined}
             href={f.key === "all" ? "/history" : `/history?type=${f.key}`}
             className={cn(
-              "rounded-full px-3 py-1.5 text-xs font-bold",
+              "flex min-h-9 items-center rounded-full px-3.5 text-xs font-bold",
               filter === f.key ? "bg-text text-black" : "bg-surface-2 text-muted",
             )}
           >
@@ -116,14 +117,14 @@ export default async function HistoryPage({ searchParams }: PageProps<"/history"
         ))}
       </nav>
 
-      {items.length === 0 ? <EmptyState title="Nothing logged yet">Completed workouts, runs and HYROX results show up here.</EmptyState> : null}
+      {items.length === 0 ? <EmptyState title="まだ記録がありません">終えたトレーニング・ラン・HYROX の結果がここに表示されます。</EmptyState> : null}
 
       <div className="space-y-6">
         {[...weeks.entries()].map(([week, list]) => (
           <section key={week}>
             <h2 className="label mb-2">
-              {week === thisWeek ? "This week" : `Week of ${formatShortDate(week, Number(today.slice(0, 4)))}`}
-              <span className="ml-2 text-faint">{list.length}</span>
+              {week === thisWeek ? "今週" : `${formatShortDate(week, Number(today.slice(0, 4)))} の週`}
+              <span className="ml-2 text-faint">{list.length}件</span>
             </h2>
             <ul className="space-y-1.5">
               {list.map((item) => {
@@ -132,7 +133,7 @@ export default async function HistoryPage({ searchParams }: PageProps<"/history"
                   <li key={item.key}>
                     <Link href={item.href} className="flex items-center gap-3 rounded-2xl bg-surface px-3 py-3 active:bg-surface-2">
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-2">
-                        <Icon className={cn("h-5 w-5", ICON_TONE[item.kind])} />
+                        <Icon className={cn("h-5 w-5", ICON_TONE[item.kind])} aria-hidden="true" />
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="flex items-center gap-2">
@@ -144,7 +145,7 @@ export default async function HistoryPage({ searchParams }: PageProps<"/history"
                         </span>
                       </span>
                       <span className="num shrink-0 text-sm font-bold">{item.value}</span>
-                      <ChevronRight className="h-4 w-4 shrink-0 text-faint" />
+                      <ChevronRight className="h-4 w-4 shrink-0 text-faint" aria-hidden="true" />
                     </Link>
                   </li>
                 );

@@ -4,7 +4,8 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "HYROX AI Coach",
     short_name: "HYROX Coach",
-    description: "Train. The AI coach records, analyses and plans the rest.",
+    description: "トレーニングするだけ。記録・分析・メニュー作りは AI コーチが回します。",
+    lang: "ja",
     start_url: "/today",
     display: "standalone",
     orientation: "portrait",

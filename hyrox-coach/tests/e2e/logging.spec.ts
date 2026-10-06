@@ -9,7 +9,7 @@ test.beforeEach(async ({ page }) => {
 /** ⑫ Running log */
 test("save a run", async ({ page }) => {
   await page.goto("/run/new");
-  await page.getByRole("button", { name: "Zone 2" }).click();
+  await page.getByRole("button", { name: "ゾーン2" }).click();
   const distance = page.getByTestId("run-distance-value");
   const before = Number(await distance.textContent());
   await page.getByTestId("run-distance-inc").click();
@@ -26,7 +26,7 @@ test("save a run", async ({ page }) => {
 /** ⑬ HYROX simulation: 16 segments, compared with the PB, saved with splits */
 test("run a HYROX simulation and save it", async ({ page }) => {
   await page.goto("/hyrox/simulation");
-  await page.getByLabel(/Track Roxzone/).uncheck();
+  await page.getByLabel(/Roxzone（区間の移動時間）も計測/).uncheck();
   await page.getByTestId("sim-start").click();
   for (let i = 0; i < 16; i++) {
     await page.getByTestId("sim-done").click();
@@ -80,7 +80,7 @@ test("a plan created through the API shows up on TODAY", async ({ page }) => {
   await page.goto("/today");
   const card = page.getByTestId("plan-card").filter({ hasText: "E2E Engine" });
   await expect(card).toBeVisible();
-  await expect(card).toContainText("AI COACH");
+  await expect(card).toContainText("AIコーチ");
   await expect(card).toContainText("SkiErg");
   await expect(card).toContainText("3 × 500 m");
 });

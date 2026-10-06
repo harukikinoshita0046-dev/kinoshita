@@ -104,9 +104,9 @@ describe("insights", () => {
       daysToRace: 40,
     });
     const texts = insights.map((i) => i.text);
-    expect(texts).toContain("体重（7日平均）は0.4kg減少していますが、Bench PressのVolumeは3%増加しています。");
-    expect(texts.some((t) => t.startsWith("Running Volumeが先週比22%増加"))).toBe(true);
-    expect(texts).toContain("Sled PullがHYROX Stationsの中で相対的に弱いです。");
+    expect(texts).toContain("体重（7日平均）は0.4kg減少していますが、Bench Pressのボリュームは3%増加しています。");
+    expect(texts.some((t) => t.startsWith("走行距離が先週比22%増加"))).toBe(true);
+    expect(texts).toContain("Sled PullがHYROX ステーションの中で相対的に弱いです。");
     expect(texts).toContain("HRVが3日連続で通常値を下回っています。");
   });
 });

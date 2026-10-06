@@ -12,7 +12,7 @@ import { formatDuration, formatSignedDuration } from "@/lib/domain/format";
 import { HYROX_DIVISION_LABELS, HYROX_SEGMENTS } from "@/lib/domain/hyrox";
 import { deleteHyroxResultAction } from "../../actions";
 
-export const metadata: Metadata = { title: "HYROX result" };
+export const metadata: Metadata = { title: "HYROX の結果" };
 
 export default async function HyroxResultPage({ params, searchParams }: PageProps<"/hyrox/results/[id]">) {
   const { id } = await params;
@@ -43,17 +43,17 @@ export default async function HyroxResultPage({ params, searchParams }: PageProp
     <Page>
       <div className="pt-4">
         <Link href="/hyrox" className="flex items-center gap-1 text-sm font-semibold text-muted">
-          <ArrowLeft className="h-4 w-4" /> HYROX
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" /> HYROX
         </Link>
       </div>
       {isNew ? (
         <div className="mt-4 flex items-center gap-2 rounded-2xl bg-push/10 px-4 py-3 font-bold text-push" data-testid="saved-banner">
-          <Check className="h-5 w-5" /> RESULT SAVED
+          <Check className="h-5 w-5" aria-hidden="true" /> 結果を保存しました
         </div>
       ) : null}
       <header className="pb-3 pt-4">
         <p className="label">
-          {formatDayLabel(result.date)} · {result.event_type === "race" ? "Race" : result.event_type === "simulation" ? "Simulation" : "Partial"}
+          {formatDayLabel(result.date)} · {result.event_type === "race" ? "レース" : result.event_type === "simulation" ? "シミュレーション" : "一部のみ"}
           {result.division ? ` · ${HYROX_DIVISION_LABELS[result.division] ?? result.division}` : ""}
         </p>
         <h1 className="text-3xl font-extrabold tracking-tight">{result.name || "HYROX"}</h1>
@@ -61,39 +61,39 @@ export default async function HyroxResultPage({ params, searchParams }: PageProp
 
       <Card>
         <div className="grid grid-cols-2 gap-4">
-          <Stat label="Total" value={formatDuration(result.total_seconds)} size="lg" />
+          <Stat label="合計タイム" value={formatDuration(result.total_seconds)} size="lg" />
           <div>
-            <p className="label">vs previous PB</p>
+            <p className="label">前回までの PB との差</p>
             {prevBest ? (
               <>
                 <p className="num mt-1 text-2xl font-bold text-muted">{formatDuration(prevBest.total_seconds)}</p>
                 <p className={cn("num mt-1 flex items-center gap-1 font-extrabold", isPb ? "text-push" : "text-low")} data-testid="result-diff">
-                  {isPb ? <Trophy className="h-4 w-4" /> : null}
+                  {isPb ? <Trophy className="h-4 w-4" aria-hidden="true" /> : null}
                   {formatSignedDuration(diff)} {isPb ? "PB" : ""}
                 </p>
               </>
             ) : (
-              <p className="mt-1 font-bold text-push">First result</p>
+              <p className="mt-1 font-bold text-push">初めての記録</p>
             )}
           </div>
         </div>
         <div className="mt-4 grid grid-cols-3 gap-3 border-t border-line pt-3">
-          <Stat label="Running" value={formatDuration(result.run_total_seconds)} size="sm" />
-          <Stat label="Stations" value={formatDuration(result.station_total_seconds)} size="sm" />
+          <Stat label="ラン" value={formatDuration(result.run_total_seconds)} size="sm" />
+          <Stat label="ステーション" value={formatDuration(result.station_total_seconds)} size="sm" />
           <Stat label="Roxzone" value={formatDuration(result.roxzone_seconds)} size="sm" />
         </div>
       </Card>
 
       {result.splits.length ? (
         <>
-          <SectionTitle>Splits</SectionTitle>
+          <SectionTitle>スプリット</SectionTitle>
           <Card>
             <table className="num w-full text-sm">
               <thead>
                 <tr className="text-left text-xs text-muted">
-                  <th className="pb-2 font-semibold">Segment</th>
-                  <th className="pb-2 text-right font-semibold">Time</th>
-                  <th className="pb-2 text-right font-semibold">vs best</th>
+                  <th className="pb-2 font-semibold">区間</th>
+                  <th className="pb-2 text-right font-semibold">タイム</th>
+                  <th className="pb-2 text-right font-semibold">ベスト比</th>
                   <th className="pb-2 text-right font-semibold">Rox</th>
                 </tr>
               </thead>
@@ -107,7 +107,7 @@ export default async function HyroxResultPage({ params, searchParams }: PageProp
                       <td className={cn("py-1.5", seg.type === "station" ? "font-semibold" : "text-muted")}>{seg.label}</td>
                       <td className="text-right font-bold">{formatDuration(s.duration_seconds)}</td>
                       <td className={cn("text-right text-xs", d == null ? "text-faint" : d <= 0 ? "text-push" : "text-low")}>{d == null ? "–" : formatSignedDuration(d)}</td>
-                      <td className="text-right text-xs text-faint">{s.roxzone_seconds != null ? `${s.roxzone_seconds}s` : "–"}</td>
+                      <td className="text-right text-xs text-faint">{s.roxzone_seconds != null ? `${s.roxzone_seconds}秒` : "–"}</td>
                     </tr>
                   );
                 })}
@@ -119,7 +119,7 @@ export default async function HyroxResultPage({ params, searchParams }: PageProp
 
       {result.notes ? (
         <>
-          <SectionTitle>Notes</SectionTitle>
+          <SectionTitle>メモ</SectionTitle>
           <Card>
             <p className="whitespace-pre-line text-sm">{result.notes}</p>
           </Card>
@@ -127,7 +127,7 @@ export default async function HyroxResultPage({ params, searchParams }: PageProp
       ) : null}
 
       <form action={deleteHyroxResultAction.bind(null, result.id)} className="mt-8">
-        <ConfirmButton message="Delete this HYROX result?">Delete result</ConfirmButton>
+        <ConfirmButton message="この HYROX の結果を削除しますか？">結果を削除</ConfirmButton>
       </form>
     </Page>
   );
