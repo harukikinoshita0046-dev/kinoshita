@@ -34,7 +34,7 @@ export function QueueSync({ compact = false }: { compact?: boolean }) {
       role="status"
       data-testid="offline-badge"
     >
-      <CloudOff className="h-3.5 w-3.5" /> {pending} pending
+      <CloudOff className="h-3.5 w-3.5" aria-hidden="true" /> 未送信 {pending}件
     </span>
   );
 }

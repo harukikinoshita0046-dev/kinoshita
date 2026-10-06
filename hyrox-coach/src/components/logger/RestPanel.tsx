@@ -35,8 +35,8 @@ export function RestPanel({
   return (
     <div className="rounded-3xl bg-surface-2 p-3" data-testid="rest-timer" aria-live="polite">
       <div className="flex items-center justify-between">
-        <span className="label text-accent">Rest</span>
-        {nextLabel ? <span className="num truncate pl-3 text-xs text-muted">Next: {nextLabel}</span> : null}
+        <span className="label text-accent">レスト</span>
+        {nextLabel ? <span className="num truncate pl-3 text-xs text-muted">次: {nextLabel}</span> : null}
       </div>
       <p className="num mt-1 text-center text-6xl font-extrabold leading-none" data-testid="rest-remaining">
         {formatDuration(remaining)}
@@ -45,14 +45,14 @@ export function RestPanel({
         <div className="h-full rounded-full bg-accent transition-[width] duration-200" style={{ width: `${progress * 100}%` }} />
       </div>
       <div className="mt-2 grid grid-cols-3 gap-2">
-        <button type="button" onClick={() => onAdjust(-15)} className="num h-11 rounded-xl bg-surface-3 font-bold active:brightness-125">
-          −15s
+        <button type="button" onClick={() => onAdjust(-15)} aria-label="レストを15秒短くする" className="num h-11 rounded-xl bg-surface-3 font-bold active:brightness-125">
+          −15秒
         </button>
         <button type="button" onClick={onSkip} className="h-11 rounded-xl bg-accent font-extrabold text-accent-ink active:brightness-90" data-testid="rest-skip">
-          SKIP
+          スキップ
         </button>
-        <button type="button" onClick={() => onAdjust(15)} className="num h-11 rounded-xl bg-surface-3 font-bold active:brightness-125">
-          +15s
+        <button type="button" onClick={() => onAdjust(15)} aria-label="レストを15秒長くする" className="num h-11 rounded-xl bg-surface-3 font-bold active:brightness-125">
+          +15秒
         </button>
       </div>
     </div>

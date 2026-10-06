@@ -12,15 +12,15 @@ export const WORKOUT_TYPES = [
 export type WorkoutType = (typeof WORKOUT_TYPES)[number];
 
 export const WORKOUT_TYPE_LABELS: Record<WorkoutType, string> = {
-  upper: "Upper",
-  lower: "Lower",
-  full_body: "Full Body",
+  upper: "上半身",
+  lower: "下半身",
+  full_body: "全身",
   hyrox: "HYROX",
-  run: "Run",
-  simulation: "HYROX Simulation",
-  conditioning: "Conditioning",
-  recovery: "Recovery",
-  other: "Other",
+  run: "ラン",
+  simulation: "HYROX シミュレーション",
+  conditioning: "コンディショニング",
+  recovery: "リカバリー",
+  other: "その他",
 };
 
 const SYNONYMS: Record<string, WorkoutType> = {
@@ -83,7 +83,7 @@ export function normalizeWorkoutType(input: string | null | undefined): WorkoutT
 }
 
 export function workoutTypeLabel(type: string | null | undefined): string {
-  return isWorkoutType(type) ? WORKOUT_TYPE_LABELS[type] : "Workout";
+  return isWorkoutType(type) ? WORKOUT_TYPE_LABELS[type] : "トレーニング";
 }
 
 /** Session types grouped the way the coach asks about them ("last upper", "last HYROX"...). */

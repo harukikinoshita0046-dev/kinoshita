@@ -42,7 +42,7 @@ function niceTicks(min: number, max: number, count = 3): number[] {
  * Single-axis time-series chart. Crosshair snaps to the nearest date and the
  * tooltip lists every series at that date. Arrow keys move the crosshair.
  */
-export function LineChart({ series, height = 180, format = "dec1", reference, ariaLabel, emptyText = "No data yet" }: Props) {
+export function LineChart({ series, height = 180, format = "dec1", reference, ariaLabel, emptyText = "まだデータがありません" }: Props) {
   const yFormat = (v: number) => formatValue(v, format);
   const { ref, width } = useWidth<HTMLDivElement>();
   const [hover, setHover] = useState<number | null>(null);
@@ -185,11 +185,11 @@ export function LineChart({ series, height = 180, format = "dec1", reference, ar
       ) : null}
 
       <details className="mt-1">
-        <summary className="cursor-pointer text-[11px] text-faint">Data</summary>
+        <summary className="flex min-h-9 cursor-pointer items-center text-xs text-faint">データを表で見る</summary>
         <table id={tableId} className="num mt-1 w-full text-xs">
           <thead>
             <tr className="text-left text-muted">
-              <th className="font-semibold">Date</th>
+              <th className="font-semibold">日付</th>
               {series.map((s) => (
                 <th key={s.key} className="text-right font-semibold">
                   {s.label}

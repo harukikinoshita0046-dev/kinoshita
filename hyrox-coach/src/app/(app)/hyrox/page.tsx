@@ -41,44 +41,44 @@ export default async function HyroxPage() {
       <PageHeader
         eyebrow={HYROX_DIVISION_LABELS[profile.hyrox_division] ?? "HYROX"}
         title="HYROX"
-        action={<ButtonLink href="/hyrox/new" variant="secondary" size="sm"><Plus className="h-4 w-4" /> Result</ButtonLink>}
+        action={<ButtonLink href="/hyrox/new" variant="secondary" size="sm"><Plus className="h-4 w-4" aria-hidden="true" /> 結果を記録</ButtonLink>}
       />
 
       <Card>
         <div className="grid grid-cols-2 gap-4">
-          <Stat label="PB" value={pb ? formatDuration(pb.total_seconds) : "–"} size="lg" sub={pb ? `${pb.event_type === "race" ? "Race" : "Simulation"} · ${relativeDayLabel(pb.date, today)}` : undefined} />
-          <Stat label="Latest" value={latest ? formatDuration(latest.total_seconds) : "–"} size="lg" sub={latest ? relativeDayLabel(latest.date, today) : undefined} />
+          <Stat label="PB" value={pb ? formatDuration(pb.total_seconds) : "–"} size="lg" sub={pb ? `${pb.event_type === "race" ? "レース" : "シミュレーション"} · ${relativeDayLabel(pb.date, today)}` : undefined} />
+          <Stat label="最新" value={latest ? formatDuration(latest.total_seconds) : "–"} size="lg" sub={latest ? relativeDayLabel(latest.date, today) : undefined} />
         </div>
         {goal ? (
           <div className="mt-4 grid grid-cols-3 gap-3 border-t border-line pt-3">
-            <Stat label="Goal" value={formatDuration(goal)} size="sm" />
-            <Stat label="Gap" value={pb?.total_seconds ? formatSignedDuration(pb.total_seconds - goal) : "–"} size="sm" tone={pb?.total_seconds && pb.total_seconds <= goal ? "text-push" : "text-low"} />
-            <Stat label="Race in" value={daysToRace != null && daysToRace >= 0 ? `${daysToRace}d` : "–"} size="sm" sub={profile.next_race_name ?? undefined} />
+            <Stat label="目標" value={formatDuration(goal)} size="sm" />
+            <Stat label="目標との差" value={pb?.total_seconds ? formatSignedDuration(pb.total_seconds - goal) : "–"} size="sm" tone={pb?.total_seconds && pb.total_seconds <= goal ? "text-push" : "text-low"} />
+            <Stat label="レースまで" value={daysToRace != null && daysToRace >= 0 ? `${daysToRace}日` : "–"} size="sm" sub={profile.next_race_name ?? undefined} />
           </div>
         ) : null}
         {needPace && pb ? (
           <p className="mt-3 text-xs text-muted">
-            To hit the goal with your PB stations &amp; Roxzone, runs need {formatPace(needPace)}/km avg (PB avg {formatPace(averageRunSplit(analysis.find((a) => a.id === pb.id)!))}).
+            PB のステーションと Roxzone のままで目標を切るには、ランを平均 {formatPace(needPace)}/km で走る必要があります（PB 時の平均 {formatPace(averageRunSplit(analysis.find((a) => a.id === pb.id)!))}）。
           </p>
         ) : null}
         <Link href="/hyrox/simulation" className="mt-4 flex h-14 items-center justify-center gap-2 rounded-2xl bg-accent text-lg font-extrabold text-accent-ink active:brightness-90" data-testid="start-simulation">
-          <Play className="h-5 w-5 fill-current" /> START SIMULATION
+          <Play className="h-5 w-5 fill-current" aria-hidden="true" /> シミュレーションを開始
         </Link>
       </Card>
 
       {pb ? (
         <Card className="mt-2 grid grid-cols-3 gap-3">
-          <Stat label="PB · Running" value={formatDuration(pb.run_total_seconds)} size="sm" />
-          <Stat label="PB · Stations" value={formatDuration(pb.station_total_seconds)} size="sm" />
+          <Stat label="PB · ラン" value={formatDuration(pb.run_total_seconds)} size="sm" />
+          <Stat label="PB · ステーション" value={formatDuration(pb.station_total_seconds)} size="sm" />
           <Stat label="PB · Roxzone" value={formatDuration(pb.roxzone_seconds)} size="sm" />
         </Card>
       ) : null}
 
-      <SectionTitle>8 Stations</SectionTitle>
+      <SectionTitle>8 ステーション</SectionTitle>
       {weakest.length ? (
         <p className="mb-2 flex items-start gap-2 rounded-xl bg-low/10 px-3 py-2 text-xs text-low">
-          <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          {weakest.map((w) => w.label).join(" と ")} が相対的に弱いStationです（Station合計に占める割合が基準より大きい）。
+          <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          {weakest.map((w) => w.label).join(" と ")} が相対的に弱いステーションです（ステーション合計に占める割合が基準より大きい）。
         </p>
       ) : null}
       <div className="grid grid-cols-2 gap-2" data-testid="stations">
@@ -88,20 +88,20 @@ export default async function HyroxPage() {
           return (
             <div key={s.exerciseId} className={cn("rounded-2xl bg-surface p-3", weak && "ring-1 ring-low/50")}>
               <p className="text-sm font-bold leading-tight">{s.label}</p>
-              <p className="text-[10px] text-faint">{s.spec}</p>
+              <p className="text-[11px] text-faint">{s.spec}</p>
               <div className="mt-1.5 h-[22px]">
                 <Sparkline values={s.trend} width={140} height={22} lowerIsBetter />
               </div>
               <div className="mt-2 grid grid-cols-2 gap-1">
                 <div>
-                  <p className="label !text-[9px]">PB</p>
+                  <p className="label !text-[10px]">PB</p>
                   <p className="num font-bold">{s.pb ? formatDuration(s.pb.seconds) : "–"}</p>
                 </div>
                 <div>
-                  <p className="label !text-[9px]">Latest</p>
+                  <p className="label !text-[10px]">最新</p>
                   <p className="num font-bold">
                     {s.latest ? formatDuration(s.latest.seconds) : "–"}
-                    {delta != null && delta !== 0 ? <span className={cn("ml-1 text-[10px]", delta < 0 ? "text-push" : "text-low")}>{formatSignedDuration(delta)}</span> : null}
+                    {delta != null && delta !== 0 ? <span className={cn("ml-1 text-[11px]", delta < 0 ? "text-push" : "text-low")}>{formatSignedDuration(delta)}</span> : null}
                   </p>
                 </div>
               </div>
@@ -112,21 +112,21 @@ export default async function HyroxPage() {
 
       {results.length > 1 ? (
         <>
-          <SectionTitle>Finish time trend</SectionTitle>
+          <SectionTitle>フィニッシュタイムの推移</SectionTitle>
           <Card>
             <LineChart
-              ariaLabel="HYROX finish times over time"
+              ariaLabel="HYROX フィニッシュタイムの推移"
               format="duration"
-              reference={goal ? { y: goal, label: `Goal ${formatDuration(goal)}` } : undefined}
-              series={[{ key: "total", label: "Finish time", color: "#d95926", points: chronological.filter((r) => r.total_seconds).map((r) => ({ x: r.date, y: r.total_seconds })) }]}
+              reference={goal ? { y: goal, label: `目標 ${formatDuration(goal)}` } : undefined}
+              series={[{ key: "total", label: "フィニッシュタイム", color: "#d95926", points: chronological.filter((r) => r.total_seconds).map((r) => ({ x: r.date, y: r.total_seconds })) }]}
             />
           </Card>
         </>
       ) : null}
 
-      <SectionTitle>Results</SectionTitle>
+      <SectionTitle>結果一覧</SectionTitle>
       {results.length === 0 ? (
-        <EmptyState title="No HYROX results yet">Run a simulation or log a race to see PBs and station trends.</EmptyState>
+        <EmptyState title="まだ HYROX の結果がありません">シミュレーションを行うか、レース結果を記録すると、PB とステーションごとの推移が表示されます。</EmptyState>
       ) : (
         <ul className="space-y-1.5">
           {results.map((r) => {
@@ -135,16 +135,16 @@ export default async function HyroxPage() {
               <li key={r.id}>
                 <Link href={`/hyrox/results/${r.id}`} className="flex items-center gap-3 rounded-2xl bg-surface px-3 py-3 active:bg-surface-2">
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate font-bold">{r.name || (r.event_type === "race" ? "Race" : "Simulation")}</span>
+                    <span className="block truncate font-bold">{r.name || (r.event_type === "race" ? "レース" : "シミュレーション")}</span>
                     <span className="block text-xs text-muted">
-                      {relativeDayLabel(r.date, today)} · {r.event_type === "race" ? "Race" : r.event_type === "simulation" ? "Simulation" : "Partial"}
+                      {relativeDayLabel(r.date, today)} · {r.event_type === "race" ? "レース" : r.event_type === "simulation" ? "シミュレーション" : "一部のみ"}
                     </span>
                   </span>
                   <span className="text-right">
                     <span className="num block font-bold">{formatDuration(r.total_seconds)}</span>
                     {d != null ? <span className={cn("num block text-[11px]", d < 0 ? "text-push" : "text-muted")}>{d < 0 ? `${formatSignedDuration(d)} PB` : formatSignedDuration(d)}</span> : null}
                   </span>
-                  <ChevronRight className="h-4 w-4 text-faint" />
+                  <ChevronRight className="h-4 w-4 text-faint" aria-hidden="true" />
                 </Link>
               </li>
             );

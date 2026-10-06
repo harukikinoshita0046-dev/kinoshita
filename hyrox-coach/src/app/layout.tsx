@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: { default: "HYROX Coach", template: "%s · HYROX Coach" },
-  description: "Train. The AI coach records, analyses and plans the rest.",
+  description: "トレーニングするだけ。記録・分析・メニュー作りは AI コーチが回します。",
   applicationName: "HYROX Coach",
   appleWebApp: { capable: true, title: "HYROX Coach", statusBarStyle: "black-translucent" },
   formatDetection: { telephone: false },

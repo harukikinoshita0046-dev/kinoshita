@@ -8,9 +8,33 @@ import { createClient } from "@/lib/supabase/server";
 export type AuthState = { error?: string; message?: string; mode: "signin" | "signup" };
 
 const credentials = z.object({
-  email: z.email("Enter a valid email."),
-  password: z.string().min(8, "Password must be at least 8 characters."),
+  email: z.email("正しいメールアドレスを入力してください。"),
+  password: z.string().min(8, "パスワードは8文字以上にしてください。"),
 });
+
+/** Tell the athlete why sign-in failed instead of always blaming the password. */
+function signInErrorMessage(code: string | undefined, message: string): string {
+  if (code === "email_not_confirmed" || /not confirmed/i.test(message)) {
+    return "メールアドレスの確認がまだです。登録時に届いた確認メールのリンクを開いてから、もう一度ログインしてください。";
+  }
+  if (code === "invalid_credentials" || /invalid login credentials/i.test(message)) {
+    return "メールアドレスまたはパスワードが違います。";
+  }
+  if (code === "over_request_rate_limit" || /rate limit/i.test(message)) {
+    return "ログインの試行回数が多すぎます。しばらく待ってからもう一度お試しください。";
+  }
+  return `ログインできませんでした（${message}）`;
+}
+
+/** Supabase Auth returns English messages; show the common ones in Japanese. */
+function signUpErrorMessage(message: string): string {
+  const m = message.toLowerCase();
+  if (m.includes("already registered")) return "このメールアドレスはすでに登録されています。ログインしてください。";
+  if (m.includes("not allowed") || m.includes("disabled")) return "現在、新規登録は受け付けていません。";
+  if (m.includes("rate limit")) return "確認メールの送信回数が上限に達しました。しばらく待ってからもう一度お試しください。";
+  if (m.includes("password")) return "このパスワードは使えません。別のパスワードにしてください。";
+  return `登録できませんでした（${message}）`;
+}
 
 function safeNext(next: FormDataEntryValue | null): string {
   const value = typeof next === "string" ? next : "";
@@ -23,7 +47,7 @@ export async function signIn(_prev: AuthState, formData: FormData): Promise<Auth
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
-  if (error) return { mode: "signin", error: "Email or password is incorrect." };
+  if (error) return { mode: "signin", error: signInErrorMessage(error.code, error.message) };
   redirect(safeNext(formData.get("next")));
 }
 
@@ -36,7 +60,7 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
     .map((e) => e.trim().toLowerCase())
     .filter(Boolean);
   if (allowed.length > 0 && !allowed.includes(parsed.data.email.toLowerCase())) {
-    return { mode: "signup", error: "Sign-up is restricted for this app." };
+    return { mode: "signup", error: "このアプリでは新規登録を制限しています。" };
   }
 
   const h = await headers();
@@ -46,7 +70,7 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
     ...parsed.data,
     options: { emailRedirectTo: `${origin}/auth/confirm?next=/today` },
   });
-  if (error) return { mode: "signup", error: error.message };
+  if (error) return { mode: "signup", error: signUpErrorMessage(error.message) };
   if (data.session) redirect("/today");
-  return { mode: "signin", message: "Check your inbox to confirm your email, then sign in." };
+  return { mode: "signin", message: "確認メールを送りました。メール内のリンクを開いてから、ログインしてください。" };
 }

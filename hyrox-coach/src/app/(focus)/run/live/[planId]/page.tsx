@@ -5,7 +5,7 @@ import { requireUser } from "@/lib/auth";
 import { getPlan } from "@/lib/data/plans";
 import { isUuid } from "@/lib/data/util";
 
-export const metadata: Metadata = { title: "Run" };
+export const metadata: Metadata = { title: "ラン" };
 
 export default async function LiveRunPage({ params }: PageProps<"/run/live/[planId]">) {
   const { planId } = await params;

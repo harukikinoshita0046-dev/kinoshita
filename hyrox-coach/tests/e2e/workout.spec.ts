@@ -17,7 +17,7 @@ test("log a set from the AI plan and finish the workout", async ({ page }) => {
   const sessionId = page.url().split("/workout/")[1];
 
   // Jump to Bench Press: the coach's target weight is pre-filled.
-  await page.getByRole("navigation", { name: "Exercises" }).getByRole("button", { name: /Bench Press/ }).click();
+  await page.getByRole("navigation", { name: "種目一覧" }).getByRole("button", { name: /Bench Press/ }).click();
   await expect(page.getByTestId("exercise-name")).toHaveText("Bench Press");
   await expect(page.getByTestId("target-line")).toContainText("4 × 6-8 · 82.5 kg · RPE 8");
   await expect(page.getByTestId("previous-line")).toContainText("80 kg · 8 / 8 / 7 / 6");
@@ -79,5 +79,5 @@ test("log a set from the AI plan and finish the workout", async ({ page }) => {
   await page.goto("/history");
   await expect(page.getByRole("link", { name: /HYROX Upper/ }).first()).toBeVisible();
   await page.goto("/today");
-  await expect(page.getByTestId("plan-card").filter({ hasText: "HYROX Upper" })).toContainText("COMPLETED");
+  await expect(page.getByTestId("plan-card").filter({ hasText: "HYROX Upper" })).toContainText("完了");
 });

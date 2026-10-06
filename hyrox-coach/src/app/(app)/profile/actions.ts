@@ -55,7 +55,7 @@ export async function saveProfile(_prev: FormState, form: FormData): Promise<For
   const { supabase, userId } = await requireUser();
   await updateProfile(supabase, userId, parsed.data);
   revalidatePath("/", "layout");
-  return { ok: true, message: "Saved" };
+  return { ok: true, message: "保存しました" };
 }
 
 const settingsSchema = z.object({
@@ -77,7 +77,7 @@ export async function saveExerciseSettingsAction(_prev: FormState, form: FormDat
   const { exercise_id, ...patch } = parsed.data;
   await saveExerciseSettings(supabase, userId, exercise_id, patch);
   revalidatePath("/profile/exercises");
-  return { ok: true, message: "Saved" };
+  return { ok: true, message: "保存しました" };
 }
 
 const customSchema = z.object({
@@ -101,7 +101,7 @@ export async function createExerciseAction(_prev: FormState, form: FormData): Pr
   try {
     const id = await createCustomExercise(supabase, userId, parsed.data);
     revalidatePath("/profile/exercises");
-    return { ok: true, message: `Added ${parsed.data.name} (id: ${id})` };
+    return { ok: true, message: `${parsed.data.name} を追加しました（ID: ${id}）` };
   } catch (e) {
     if (e instanceof DataError && e.status === 409) return { error: e.message };
     throw e;

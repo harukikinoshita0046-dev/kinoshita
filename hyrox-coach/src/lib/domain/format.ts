@@ -11,11 +11,18 @@ export function formatDuration(totalSeconds: number | null | undefined): string 
 }
 
 /** "1h 05m" / "48m" */
+/** For stat tiles: minutes up to 3 h ("68" 分), then decimal hours ("3.5" 時間), so the value fits one line. */
+export function minutesStat(totalMinutes: number | null | undefined): { value: string; unit?: string } {
+  if (totalMinutes == null || !Number.isFinite(totalMinutes)) return { value: "–" };
+  const m = Math.round(totalMinutes);
+  return m < 180 ? { value: String(m), unit: "分" } : { value: (m / 60).toFixed(1), unit: "時間" };
+}
+
 export function formatMinutes(totalMinutes: number | null | undefined): string {
   if (totalMinutes == null || !Number.isFinite(totalMinutes)) return "–";
   const m = Math.round(totalMinutes);
   const h = Math.floor(m / 60);
-  return h > 0 ? `${h}h ${String(m % 60).padStart(2, "0")}m` : `${m}m`;
+  return h > 0 ? `${h}時間${String(m % 60).padStart(2, "0")}分` : `${m}分`;
 }
 
 /** Pace in seconds per km -> "4:25". */

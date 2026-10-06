@@ -68,7 +68,7 @@ export async function createCustomExercise(db: Db, userId: string, input: Custom
     default_distance_m: input.default_distance_m ?? null,
     hyrox_relevance: input.hyrox_relevance ?? 0,
   });
-  if (res.error?.code === "23505") throw new DataError(`An exercise named "${input.name}" already exists.`, 409);
+  if (res.error?.code === "23505") throw new DataError(`「${input.name}」という名前の種目はすでにあります。`, 409);
   must(res, "create exercise");
   return id;
 }

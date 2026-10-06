@@ -13,14 +13,14 @@ const TONE: Record<Insight["tone"], string> = {
 /** Coach notes posted by the AI (via the API) first, then rule-based insights. */
 export function InsightsList({ coach, rules }: { coach: CoachInsightRow[]; rules: Insight[] }) {
   if (coach.length === 0 && rules.length === 0) {
-    return <p className="text-sm text-muted">Insights appear after a few days of data.</p>;
+    return <p className="text-sm text-muted">数日分のデータがたまるとインサイトが表示されます。</p>;
   }
   return (
     <ul className="space-y-2" data-testid="insights">
       {coach.map((c) => (
         <li key={c.id} className="rounded-2xl bg-surface p-4">
           <p className="label flex items-center gap-1.5 text-accent">
-            <Bot className="h-3.5 w-3.5" /> AI COACH · {formatShortDate(c.date)}
+            <Bot className="h-3.5 w-3.5" aria-hidden="true" /> AIコーチ · {formatShortDate(c.date)}
           </p>
           {c.title ? <p className="mt-1 font-bold">{c.title}</p> : null}
           <p className="mt-1 whitespace-pre-line text-sm leading-relaxed">{c.body}</p>
@@ -34,7 +34,7 @@ export function InsightsList({ coach, rules }: { coach: CoachInsightRow[]; rules
       ))}
       {coach.length === 0 ? (
         <li className="flex items-center gap-1.5 px-1 text-[11px] text-faint">
-          <Sparkles className="h-3 w-3" /> Rule-based insights. Your AI coach can post notes here via the API.
+          <Sparkles className="h-3 w-3" aria-hidden="true" /> ルールベースのインサイトです。AIコーチがAPI経由でここにメモを投稿できます。
         </li>
       ) : null}
     </ul>

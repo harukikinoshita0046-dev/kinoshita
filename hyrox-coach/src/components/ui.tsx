@@ -64,7 +64,7 @@ export function Stat({
   const valueSize = size === "lg" ? "text-5xl" : size === "sm" ? "text-xl" : "text-2xl";
   return (
     <div className="min-w-0">
-      <p className="label truncate">{label}</p>
+      <p className="label leading-snug">{label}</p>
       <p className={cn("num mt-1 font-bold leading-none", valueSize, tone)}>
         {value}
         {unit ? <span className="ml-1 text-sm font-semibold text-muted">{unit}</span> : null}

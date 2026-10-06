@@ -5,7 +5,7 @@ import { bestResult, listHyroxResults } from "@/lib/data/hyrox";
 import { getProfile, profileToday } from "@/lib/data/profile";
 import { isUuid } from "@/lib/data/util";
 
-export const metadata: Metadata = { title: "HYROX Simulation" };
+export const metadata: Metadata = { title: "HYROX シミュレーション" };
 
 export default async function SimulationPage({ searchParams }: PageProps<"/hyrox/simulation">) {
   const { plan } = await searchParams;

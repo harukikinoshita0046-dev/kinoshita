@@ -33,9 +33,9 @@ test("main screens fit a phone screen", async ({ page }) => {
   }
   // The tab bar is reachable on app screens.
   await page.goto("/today");
-  await expect(page.getByRole("navigation", { name: "Main" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "メインメニュー" })).toBeVisible();
   for (const name of ["HISTORY", "HYROX", "TODAY", "PROGRESS", "PROFILE"]) {
-    await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "メインメニュー" }).getByRole("link", { name })).toBeVisible();
   }
 });
 
@@ -44,6 +44,6 @@ test("signed-out visitors are sent to the login page", async ({ browser }) => {
   const page = await context.newPage();
   await page.goto("/today");
   await page.waitForURL("**/login**");
-  await expect(page.getByRole("button", { name: "SIGN IN" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "ログイン", exact: true })).toBeVisible();
   await context.close();
 });

@@ -7,8 +7,9 @@ import { Card, Page, PageHeader, SectionTitle, cn } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { loadAthleteSnapshot } from "@/lib/data/snapshot";
 import { formatDayLabel } from "@/lib/domain/dates";
+import { READINESS_COMPONENT_LABELS } from "@/lib/domain/readiness";
 
-export const metadata: Metadata = { title: "Check-in" };
+export const metadata: Metadata = { title: "チェックイン" };
 
 export default async function CheckinPage() {
   const { supabase, userId } = await requireUser();
@@ -24,7 +25,7 @@ export default async function CheckinPage() {
     <Page>
       <div className="pt-4">
         <Link href="/today" className="flex items-center gap-1 text-sm font-semibold text-muted">
-          <ArrowLeft className="h-4 w-4" /> Today
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" /> TODAY
         </Link>
       </div>
       <PageHeader eyebrow={formatDayLabel(today)} title="CHECK-IN" />
@@ -49,7 +50,7 @@ export default async function CheckinPage() {
         }}
       />
 
-      <SectionTitle>Readiness breakdown</SectionTitle>
+      <SectionTitle>コンディションの内訳</SectionTitle>
       <Card>
         {r.score != null && r.level ? (
           <p className="mb-3 flex items-baseline gap-2">
@@ -74,9 +75,9 @@ export default async function CheckinPage() {
             </li>
           ))}
         </ul>
-        {r.missing.length ? <p className="mt-3 text-xs text-faint">Missing today: {r.missing.join(", ").replaceAll("_", " ")}</p> : null}
+        {r.missing.length ? <p className="mt-3 text-xs text-faint">未入力: {r.missing.map((k) => READINESS_COMPONENT_LABELS[k]).join("、")}</p> : null}
         <p className="mt-3 text-[11px] leading-relaxed text-faint">
-          Readiness compares today with your own 28-day baselines. It is a training aid, not a medical assessment.
+          コンディションは、今日の値をあなた自身の過去28日間の平均と比べたものです。トレーニング判断の目安であり、医学的な診断ではありません。
         </p>
       </Card>
     </Page>
