@@ -19,6 +19,11 @@ describe("strength stats", () => {
     expect(summarizeSets(sets, "weight_reps")).toBe("80×8, 80×8, 80×7, 80×6");
     expect(compactSetSummary(sets, "weight_reps")).toBe("80 kg · 8 / 8 / 7 / 6");
     expect(compactSetSummary([{ weight: 0, reps: 10, rpe: null }], "bodyweight_reps")).toBe("BW · 10");
+    const carries = [24, 27].map((t) => ({ weight: 24, distance: 50, time_seconds: t, reps: null, rpe: 7.5 }));
+    expect(compactSetSummary(carries, "weight_distance")).toBe("24 kg · 50 m · 0:24 / 0:27");
+    const ski = [232, 238].map((t) => ({ weight: null, distance: 1000, time_seconds: t, reps: null, rpe: 8 }));
+    expect(compactSetSummary(ski, "distance_time")).toBe("1000 m · 3:52 / 3:58");
+    expect(compactSetSummary([{ weight: 152, distance: 50, time_seconds: null, reps: null, rpe: 9 }], "weight_distance")).toBe("152 kg · 50 m · 1 set");
     const stats = sessionStats(sets);
     expect(stats.volumeKg).toBe(2320);
     expect(stats.topWeight).toBe(80);

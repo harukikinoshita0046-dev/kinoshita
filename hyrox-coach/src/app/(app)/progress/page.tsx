@@ -100,7 +100,7 @@ export default async function ProgressPage({ searchParams }: PageProps<"/progres
         </DashRow>
         <DashRow title="Recovery" href="/checkin">
           <div className="grid grid-cols-4 gap-2">
-            <Stat label="Readiness" value={snap.readiness.score ?? "–"} tone={tone} />
+            <Stat label="Score" value={snap.readiness.score ?? "–"} tone={tone} />
             <Stat label="Sleep 7d" value={formatSleepCompact(snap.health.sleep7dAvg)} size="sm" />
             <Stat label="HRV 7d" value={snap.health.hrv7dAvg != null ? formatNumber(snap.health.hrv7dAvg, 0) : "–"} size="sm" />
             <Stat label="RHR 7d" value={snap.health.restingHr7dAvg != null ? formatNumber(snap.health.restingHr7dAvg, 0) : "–"} size="sm" />
@@ -157,7 +157,7 @@ export default async function ProgressPage({ searchParams }: PageProps<"/progres
       <Card>
         <LineChart
           ariaLabel={`Body weight, ${RANGES[range].label}`}
-          yFormat={(v) => formatNumber(v, 1)}
+          format="dec1"
           series={[
             { key: "daily", label: "Daily", color: "var(--muted)", kind: "dots", points: weights.map((p) => ({ x: p.date, y: p.weight })) },
             { key: "avg", label: "7-day avg", color: "var(--accent)", points: avg.map((p) => ({ x: p.date, y: p.weight })) },
@@ -175,7 +175,7 @@ export default async function ProgressPage({ searchParams }: PageProps<"/progres
             { key: "hyrox", label: "HYROX", color: KIND_COLORS.hyrox },
           ]}
           columns={data.weekly.slice(-16).map((w) => ({ x: w.week, label: formatShortDate(w.week), values: { strength: w.strength, run: w.run, hyrox: w.hyrox } }))}
-          yFormat={(v) => `${Math.round(v)}`}
+          format="int"
         />
         <p className="mt-1 text-[11px] text-faint">Load = session RPE × minutes (AU).</p>
       </Card>
@@ -186,7 +186,7 @@ export default async function ProgressPage({ searchParams }: PageProps<"/progres
           ariaLabel="Weekly running distance in km"
           categories={[{ key: "km", label: "km", color: KIND_COLORS.run }]}
           columns={data.weekly.slice(-16).map((w) => ({ x: w.week, label: formatShortDate(w.week), values: { km: w.km } }))}
-          yFormat={(v) => `${formatNumber(v, 1)}`}
+          format="dec1"
         />
       </Card>
 
@@ -206,7 +206,7 @@ export default async function ProgressPage({ searchParams }: PageProps<"/progres
       <Card>
         <LineChart
           ariaLabel={`Heart rate variability, ${RANGES[range].label}`}
-          yFormat={(v) => `${Math.round(v)}`}
+          format="int"
           series={[
             { key: "daily", label: "Daily (ms)", color: "var(--muted)", kind: "dots", points: hrv.map((p) => ({ x: p.date, y: p.weight })) },
             { key: "avg", label: "7-day avg", color: "#3987e5", points: hrvAvg.map((p) => ({ x: p.date, y: p.weight })) },

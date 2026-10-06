@@ -52,7 +52,7 @@ export function RunSession({ plan }: { plan: RunSessionPlan }) {
 
   // Rest over -> beep and start the next rep automatically.
   useEffect(() => {
-    if (live.phase === "rest" && live.restEndsAt && now >= live.restEndsAt && alerted.current !== live.restEndsAt) {
+    if (live.phase === "rest" && live.restEndsAt && now > 0 && now >= live.restEndsAt && alerted.current !== live.restEndsAt) {
       alerted.current = live.restEndsAt;
       alert();
       setLive({ ...live, phase: "work", repStartedAt: live.restEndsAt, restEndsAt: null });
@@ -91,9 +91,9 @@ export function RunSession({ plan }: { plan: RunSessionPlan }) {
     router.push(`/run/new?plan=${plan.planId}`);
   };
 
-  const repElapsed = live.repStartedAt ? Math.max(0, Math.floor((now - live.repStartedAt) / 1000)) : 0;
-  const restLeft = live.restEndsAt ? Math.max(0, Math.ceil((live.restEndsAt - now) / 1000)) : 0;
-  const total = live.startedAt ? Math.max(0, Math.floor((now - live.startedAt) / 1000)) : 0;
+  const repElapsed = live.repStartedAt && now ? Math.max(0, Math.floor((now - live.repStartedAt) / 1000)) : 0;
+  const restLeft = live.restEndsAt ? (now ? Math.max(0, Math.ceil((live.restEndsAt - now) / 1000)) : plan.restSeconds) : 0;
+  const total = live.startedAt && now ? Math.max(0, Math.floor((now - live.startedAt) / 1000)) : 0;
   const repNo = Math.min(plan.reps, live.laps.length + 1);
   const targetTime =
     plan.paceMin && plan.paceMax ? `${formatDuration((plan.paceMin * distance) / 1000)}–${formatDuration((plan.paceMax * distance) / 1000)}` : null;

@@ -64,7 +64,7 @@ export default async function BodyPage() {
       <Card>
         <LineChart
           ariaLabel="Body weight, daily values and 7-day average, last 90 days"
-          yFormat={(v) => formatNumber(v, 1)}
+          format="dec1"
           reference={target != null ? { y: target, label: `Target ${formatNumber(target, 1)}` } : undefined}
           series={[
             { key: "daily", label: "Daily", color: "var(--muted)", kind: "dots", points: points.filter((p) => p.date >= chartFrom).map((p) => ({ x: p.date, y: p.weight })) },

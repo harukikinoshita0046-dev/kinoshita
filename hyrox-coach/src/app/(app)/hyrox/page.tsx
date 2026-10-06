@@ -87,12 +87,10 @@ export default async function HyroxPage() {
           const delta = s.latest && s.previous ? s.latest.seconds - s.previous.seconds : null;
           return (
             <div key={s.exerciseId} className={cn("rounded-2xl bg-surface p-3", weak && "ring-1 ring-low/50")}>
-              <div className="flex items-start justify-between gap-1">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-bold">{s.label}</p>
-                  <p className="text-[10px] text-faint">{s.spec}</p>
-                </div>
-                <Sparkline values={s.trend} lowerIsBetter />
+              <p className="text-sm font-bold leading-tight">{s.label}</p>
+              <p className="text-[10px] text-faint">{s.spec}</p>
+              <div className="mt-1.5 h-[22px]">
+                <Sparkline values={s.trend} width={140} height={22} lowerIsBetter />
               </div>
               <div className="mt-2 grid grid-cols-2 gap-1">
                 <div>
@@ -118,7 +116,7 @@ export default async function HyroxPage() {
           <Card>
             <LineChart
               ariaLabel="HYROX finish times over time"
-              yFormat={(v) => formatDuration(v)}
+              format="duration"
               reference={goal ? { y: goal, label: `Goal ${formatDuration(goal)}` } : undefined}
               series={[{ key: "total", label: "Finish time", color: "#d95926", points: chronological.filter((r) => r.total_seconds).map((r) => ({ x: r.date, y: r.total_seconds })) }]}
             />

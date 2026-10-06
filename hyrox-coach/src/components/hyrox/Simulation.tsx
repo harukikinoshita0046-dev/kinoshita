@@ -36,9 +36,10 @@ export function Simulation({ today, planId, pb }: { today: string; planId: strin
   const segIdx = s.splits.length; // 0-based index of the current/next segment
   const seg = HYROX_SEGMENTS[segIdx];
   const nextSeg = HYROX_SEGMENTS[segIdx + (s.phase === "roxzone" ? 0 : 1)];
-  const elapsedSeg = s.segStartedAt ? Math.floor((now - s.segStartedAt) / 1000) : 0;
-  const elapsedRox = s.roxStartedAt ? Math.floor((now - s.roxStartedAt) / 1000) : 0;
-  const total = s.startedAt ? Math.floor(((s.finishedAt ?? now) - s.startedAt) / 1000) : 0;
+  const since = (start: number | null) => (start && now ? Math.max(0, Math.floor((now - start) / 1000)) : 0);
+  const elapsedSeg = since(s.segStartedAt);
+  const elapsedRox = since(s.roxStartedAt);
+  const total = s.startedAt ? (s.finishedAt ? Math.floor((s.finishedAt - s.startedAt) / 1000) : since(s.startedAt)) : 0;
   const totals = computeTotals(s.splits.map((x) => ({ ...x, segment_type: HYROX_SEGMENTS[x.segment_index - 1].type, exercise_id: HYROX_SEGMENTS[x.segment_index - 1].exerciseId })));
 
   const start = () => {

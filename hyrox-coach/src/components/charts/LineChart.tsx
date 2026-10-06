@@ -2,6 +2,7 @@
 
 import { useId, useMemo, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { formatShortDate } from "@/lib/domain/dates";
+import { formatValue, type ValueFormat } from "./format";
 import { useWidth } from "./useWidth";
 
 export type LineSeries = {
@@ -16,10 +17,9 @@ export type LineSeries = {
 type Props = {
   series: LineSeries[];
   height?: number;
-  yFormat?: (v: number) => string;
+  format?: ValueFormat;
   /** Horizontal reference (target, baseline). */
   reference?: { y: number; label: string };
-  /** Lower values are better (e.g. times) — only affects nothing visual; kept for tooltips. */
   ariaLabel: string;
   emptyText?: string;
 };
@@ -42,7 +42,8 @@ function niceTicks(min: number, max: number, count = 3): number[] {
  * Single-axis time-series chart. Crosshair snaps to the nearest date and the
  * tooltip lists every series at that date. Arrow keys move the crosshair.
  */
-export function LineChart({ series, height = 180, yFormat = (v) => String(Math.round(v * 10) / 10), reference, ariaLabel, emptyText = "No data yet" }: Props) {
+export function LineChart({ series, height = 180, format = "dec1", reference, ariaLabel, emptyText = "No data yet" }: Props) {
+  const yFormat = (v: number) => formatValue(v, format);
   const { ref, width } = useWidth<HTMLDivElement>();
   const [hover, setHover] = useState<number | null>(null);
   const tableId = useId();

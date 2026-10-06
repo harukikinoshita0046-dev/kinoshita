@@ -72,11 +72,14 @@ export const GET = coachRoute<Params>("read", async ({ db, userId }, { id }) => 
 /** Replaces a not-yet-started plan (fields and/or the full exercise list). */
 export const PUT = coachRoute<Params>("write", async ({ db, userId, today, body }, { id }) => {
   const parsed = updatePlanBody.parse(body);
+  const existing = await getPlan(db, userId, requireId(id));
+  if (!existing) notFound("Workout plan");
+  if (existing.status !== "planned") throw new ApiError(409, "conflict", `Plan is ${existing.status}; only planned workouts can be replaced.`);
   const exercises = await listExercises(db, userId, { includeInactive: true });
   await replacePlan(
     db,
     userId,
-    requireId(id),
+    existing.id,
     {
       ...(parsed.date ? { date: resolveDate(parsed.date, today) } : {}),
       ...(parsed.title ? { title: parsed.title } : {}),

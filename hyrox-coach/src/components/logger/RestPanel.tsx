@@ -21,7 +21,7 @@ export function RestPanel({
   onDone: () => void;
 }) {
   const now = useNow(250);
-  const remaining = Math.max(0, Math.ceil((endsAt - now) / 1000));
+  const remaining = now === 0 ? total : Math.max(0, Math.ceil((endsAt - now) / 1000));
   const fired = useRef<number | null>(null);
 
   useEffect(() => {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { formatValue, type ValueFormat } from "./format";
 import { useWidth } from "./useWidth";
 
 export type ColumnCategory = { key: string; label: string; color: string };
@@ -14,15 +15,16 @@ export function ColumnChart({
   columns,
   categories,
   height = 160,
-  yFormat = (v) => String(Math.round(v)),
+  format = "int",
   ariaLabel,
 }: {
   columns: Column[];
   categories: ColumnCategory[];
   height?: number;
-  yFormat?: (v: number) => string;
+  format?: ValueFormat;
   ariaLabel: string;
 }) {
+  const yFormat = (v: number) => formatValue(v, format);
   const { ref, width } = useWidth<HTMLDivElement>();
   const [hover, setHover] = useState<number | null>(null);
   const tableId = useId();

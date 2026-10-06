@@ -55,11 +55,16 @@ export function summarizeSets(sets: SetLike[], unit: UnitType): string {
     .join(", ");
 }
 
-/** "80 kg · 8 / 8 / 7 / 6" when every set used the same load, else the full list. */
+/**
+ * Shared parts once, the varying part per set:
+ *   "80 kg · 8 / 8 / 7 / 6", "24 kg · 50 m · 0:24 / 0:27", "1000 m · 3:52 / 3:58".
+ * Falls back to the full list when loads differ.
+ */
 export function compactSetSummary(sets: SetLike[], unit: UnitType): string {
   const ws = workingSets(sets);
   if (ws.length === 0) return "–";
-  if ((unit === "weight_reps" || unit === "bodyweight_reps") && ws.every((s) => s.weight === ws[0].weight)) {
+  const same = <K extends keyof SetLike>(k: K) => ws.every((s) => (s[k] ?? null) === (ws[0][k] ?? null));
+  if ((unit === "weight_reps" || unit === "bodyweight_reps") && same("weight")) {
     const load =
       unit === "bodyweight_reps"
         ? ws[0].weight
@@ -67,6 +72,14 @@ export function compactSetSummary(sets: SetLike[], unit: UnitType): string {
           : "BW"
         : `${formatNumber(ws[0].weight ?? 0)} kg`;
     return `${load} · ${ws.map((s) => s.reps ?? 0).join(" / ")}`;
+  }
+  if ((unit === "distance_time" || unit === "weight_distance") && same("distance") && (unit === "distance_time" || same("weight"))) {
+    const parts = [
+      unit === "weight_distance" && ws[0].weight ? `${formatNumber(ws[0].weight)} kg` : null,
+      ws[0].distance ? `${formatNumber(ws[0].distance, 1)} m` : null,
+    ].filter(Boolean);
+    const times = ws.every((s) => s.time_seconds) ? ws.map((s) => formatDuration(s.time_seconds!)).join(" / ") : `${ws.length} set${ws.length === 1 ? "" : "s"}`;
+    return [...parts, times].join(" · ");
   }
   return summarizeSets(ws, unit);
 }
