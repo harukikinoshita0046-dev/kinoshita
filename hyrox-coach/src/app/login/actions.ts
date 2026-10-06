@@ -12,6 +12,20 @@ const credentials = z.object({
   password: z.string().min(8, "パスワードは8文字以上にしてください。"),
 });
 
+/** Tell the athlete why sign-in failed instead of always blaming the password. */
+function signInErrorMessage(code: string | undefined, message: string): string {
+  if (code === "email_not_confirmed" || /not confirmed/i.test(message)) {
+    return "メールアドレスの確認がまだです。登録時に届いた確認メールのリンクを開いてから、もう一度ログインしてください。";
+  }
+  if (code === "invalid_credentials" || /invalid login credentials/i.test(message)) {
+    return "メールアドレスまたはパスワードが違います。";
+  }
+  if (code === "over_request_rate_limit" || /rate limit/i.test(message)) {
+    return "ログインの試行回数が多すぎます。しばらく待ってからもう一度お試しください。";
+  }
+  return `ログインできませんでした（${message}）`;
+}
+
 /** Supabase Auth returns English messages; show the common ones in Japanese. */
 function signUpErrorMessage(message: string): string {
   const m = message.toLowerCase();
@@ -33,7 +47,7 @@ export async function signIn(_prev: AuthState, formData: FormData): Promise<Auth
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
-  if (error) return { mode: "signin", error: "メールアドレスまたはパスワードが違います。" };
+  if (error) return { mode: "signin", error: signInErrorMessage(error.code, error.message) };
   redirect(safeNext(formData.get("next")));
 }
 
