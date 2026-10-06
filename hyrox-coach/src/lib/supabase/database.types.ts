@@ -945,7 +945,21 @@ export type Database = {
       };
     };
     Functions: {
-      [_ in never]: never;
+      create_hyrox_result: {
+        Args: { p_result: Json; p_splits: Json; p_user_id: string };
+        Returns: string;
+      };
+      create_workout_plan: {
+        Args: { p_exercises: Json; p_plan: Json; p_replace_existing?: boolean; p_user_id: string };
+        Returns: {
+          created: boolean;
+          plan_id: string;
+        }[];
+      };
+      replace_workout_plan: {
+        Args: { p_exercises: Json; p_plan: Json; p_plan_id: string; p_user_id: string };
+        Returns: string;
+      };
     };
     Enums: {
       [_ in never]: never;

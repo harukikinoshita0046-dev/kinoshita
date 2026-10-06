@@ -69,6 +69,13 @@ export function formatSleep(minutes: number | null | undefined): string {
   return `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, "0")}m`;
 }
 
+/** 462 -> "7h42" (tight spaces like tiles) */
+export function formatSleepCompact(minutes: number | null | undefined): string {
+  if (minutes == null || !Number.isFinite(minutes)) return "–";
+  const m = Math.round(minutes);
+  return `${Math.floor(m / 60)}h${String(m % 60).padStart(2, "0")}`;
+}
+
 /** Meters -> "800 m" / "5.2 km" */
 export function formatDistance(meters: number | null | undefined): string {
   if (meters == null || !Number.isFinite(meters)) return "–";
