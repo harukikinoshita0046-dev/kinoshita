@@ -13,7 +13,7 @@ config({ path: ".env.local" });
 
 import { createClient } from "@supabase/supabase-js";
 import { generateCoachToken } from "../src/lib/coach/token-crypto";
-import { addDays, todayInTimeZone } from "../src/lib/domain/dates";
+import { addDays, diffDays, todayInTimeZone } from "../src/lib/domain/dates";
 import { computeTotals, HYROX_SEGMENTS } from "../src/lib/domain/hyrox";
 import type { Database } from "../src/lib/supabase/database.types";
 
@@ -199,6 +199,7 @@ async function main() {
   );
 
   // Weekly rhythm: Mon lower · Tue upper · Wed intervals · Thu HYROX stations · Fri zone 2 · Sat long run / simulation · Sun rest
+  // Oldest -> newest; the most recent Tuesday is the spec example (80 kg × 8/8/7/6).
   const benchWeeks = [
     { w: 75, r: [8, 8, 8, 7], rpe: [7.5, 8, 8, 8.5] },
     { w: 77.5, r: [8, 8, 7, 6], rpe: [8, 8.5, 9, 9] },
@@ -237,8 +238,9 @@ async function main() {
         ],
       );
     } else if (dow === 2) {
-      const b = benchWeeks[Math.min(tuesday, benchWeeks.length - 1)];
-      const pullUps = tuesday >= 4 ? [10, 9, 9, 8] : [9, 9, 8, 7];
+      const weeksAgo = Math.ceil(diffDays(today, date) / 7);
+      const b = benchWeeks[Math.max(0, benchWeeks.length - weeksAgo)];
+      const pullUps = weeksAgo <= 2 ? [10, 9, 9, 8] : [9, 9, 8, 7];
       tuesday++;
       workout(
         userId,
