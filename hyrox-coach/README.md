@@ -111,12 +111,14 @@ npm run dev                       # http://localhost:3000
 ### ホスト版プロジェクトの準備
 
 1. [supabase.com](https://supabase.com) でプロジェクトを作成（リージョンは Tokyo 推奨）。
-2. マイグレーションを適用:
-   ```bash
-   npx supabase login
-   npx supabase link --project-ref <project-ref>
-   npx supabase db push
-   ```
+2. マイグレーションを適用（どちらか）:
+   - **CLI**:
+     ```bash
+     npx supabase login
+     npx supabase link --project-ref <project-ref>
+     npx supabase db push
+     ```
+   - **ブラウザだけ**: [`supabase/setup-hosted.sql`](supabase/setup-hosted.sql)（全マイグレーションを1つにまとめたもの）の中身を Dashboard → SQL Editor に貼り付けて Run。空のプロジェクトで1回だけ実行します。マイグレーション履歴も記録するので、後から `db push` を使っても二重適用されません。マイグレーションを追加したら `npm run db:bundle` で再生成。
 3. Authentication → URL Configuration: Site URL を本番URLに、Redirect URLs に `https://<your-app>/auth/confirm` を追加。
 4. Authentication → Providers → Email を有効化（確認メールを使うかは任意。使う場合は `/auth/confirm` で処理されます）。
 5. 自分のアカウントを作成したら **Authentication → Sign In / Up → Allow new users to sign up をオフ**（または `ALLOWED_SIGNUP_EMAILS` を設定）。

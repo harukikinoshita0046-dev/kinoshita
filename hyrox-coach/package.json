@@ -16,7 +16,8 @@
     "db:start": "bash scripts/local-stack/start.sh",
     "db:stop": "bash scripts/local-stack/stop.sh",
     "db:migrate": "supabase db push --db-url \"${SUPABASE_DB_URL:-postgresql://postgres:postgres@127.0.0.1:54322/postgres}\" --yes",
-    "db:types": "supabase gen types typescript --db-url \"${SUPABASE_DB_URL:-postgresql://postgres:postgres@127.0.0.1:54322/postgres}\" --schema public > src/lib/supabase/database.types.ts && oxfmt src/lib/supabase/database.types.ts"
+    "db:types": "supabase gen types typescript --db-url \"${SUPABASE_DB_URL:-postgresql://postgres:postgres@127.0.0.1:54322/postgres}\" --schema public > src/lib/supabase/database.types.ts && oxfmt src/lib/supabase/database.types.ts",
+    "db:bundle": "bash scripts/bundle-migrations.sh"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
