@@ -3,7 +3,8 @@
  * Import that URL as a ChatGPT GPT Action (Authentication: API key, Bearer).
  */
 const json = (schema: object, description = "OK") => ({ description, content: { "application/json": { schema } } });
-const obj = { type: "object", additionalProperties: true };
+// ChatGPT Actions rejects object schemas without a `properties` key, even open-ended ones.
+const obj = { type: "object", properties: {}, additionalProperties: true };
 const errorRef = { $ref: "#/components/schemas/Error" };
 const errors = {
   "400": json(errorRef, "Validation error"),
