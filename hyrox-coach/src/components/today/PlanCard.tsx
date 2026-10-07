@@ -5,6 +5,7 @@ import type { Plan } from "@/lib/data/plans";
 import type { Exercise } from "@/lib/domain/exercise";
 import { formatPlanDistance, formatPaceRange, formatPlanTarget } from "@/lib/domain/plan-format";
 import { workoutTypeLabel } from "@/lib/domain/workout-types";
+import { SubmitButton } from "../SubmitButton";
 import { buttonClass, Card, cn, Pill } from "../ui";
 
 function SourceBadge({ plan }: { plan: Plan }) {
@@ -48,9 +49,9 @@ function StatusAction({ plan, sessionId }: { plan: Plan; sessionId?: string | nu
   if (plan.status === "skipped") {
     return (
       <form action={restorePlan.bind(null, plan.id)} className="mt-4">
-        <button className={buttonClass("secondary", "md", "w-full")}>
+        <SubmitButton className={buttonClass("secondary", "md", "w-full")} pendingText="元に戻しています…">
           <RotateCcw className="h-4 w-4" aria-hidden="true" /> スキップ済み · 元に戻す
-        </button>
+        </SubmitButton>
       </form>
     );
   }
@@ -70,9 +71,9 @@ function StatusAction({ plan, sessionId }: { plan: Plan; sessionId?: string | nu
   }
   return (
     <form action={startWorkout.bind(null, plan.id)} className="mt-4">
-      <button className={buttonClass("primary", "lg", "w-full")} data-testid="start-workout">
+      <SubmitButton className={buttonClass("primary", "lg", "w-full")} data-testid="start-workout" pendingText="準備しています…">
         <Play className="h-5 w-5 fill-current" aria-hidden="true" /> {plan.status === "in_progress" ? "トレーニングを再開" : "トレーニング開始"}
-      </button>
+      </SubmitButton>
     </form>
   );
 }
@@ -149,7 +150,9 @@ export function PlanCard({
       <StatusAction plan={plan} sessionId={sessionId} />
       {plan.status === "planned" ? (
         <form action={skipPlan.bind(null, plan.id)} className="mt-2 text-center">
-          <button className="text-xs font-semibold text-faint underline-offset-2 hover:underline">今日はスキップ</button>
+          <SubmitButton className="inline-flex min-h-11 items-center gap-1.5 px-3 text-xs font-semibold text-faint underline-offset-2 hover:underline" pendingText="スキップしています…">
+            今日はスキップ
+          </SubmitButton>
         </form>
       ) : null}
     </Card>

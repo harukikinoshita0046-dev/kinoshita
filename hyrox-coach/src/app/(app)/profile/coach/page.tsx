@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { CopyButton, CreateTokenForm } from "@/components/profile/CoachTokens";
+import { SubmitButton } from "@/components/SubmitButton";
 import { Card, Page, PageHeader, SectionTitle, cn } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { GPT_INSTRUCTIONS } from "@/lib/coach/gpt-instructions";
@@ -117,7 +118,9 @@ export default async function CoachApiPage() {
                   <span className="text-xs font-bold text-recover">{t.revoked_at ? "無効化済み" : "期限切れ"}</span>
                 ) : (
                   <form action={revokeTokenAction.bind(null, t.id)}>
-                    <button className="min-h-9 rounded-lg bg-recover/15 px-3 text-xs font-bold text-recover">無効化</button>
+                    <SubmitButton className="inline-flex min-h-9 items-center gap-1 rounded-lg bg-recover/15 px-3 text-xs font-bold text-recover" pendingText="無効化中…">
+                      無効化
+                    </SubmitButton>
                   </form>
                 )}
               </div>
