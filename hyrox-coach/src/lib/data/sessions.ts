@@ -10,7 +10,7 @@ export type SetInsert = Insert<"workout_sets">;
 export type ExerciseSessionStat = ViewRow<"exercise_session_stats">;
 
 /** Starts (or resumes) the session for a plan. Safe against double taps. */
-export async function startSessionForPlan(db: Db, userId: string, planId: string, today: string): Promise<string> {
+export async function startSessionForPlan(db: Db, userId: string, planId: string, today: string, startedAt?: string): Promise<string> {
   const findActive = async () =>
     must(
       await db
@@ -38,6 +38,7 @@ export async function startSessionForPlan(db: Db, userId: string, planId: string
       title: plan.title,
       workout_type: plan.workout_type,
       status: "in_progress",
+      ...(startedAt ? { started_at: startedAt } : {}),
     })
     .select("id")
     .single();
@@ -50,13 +51,17 @@ export async function startSessionForPlan(db: Db, userId: string, planId: string
   return session.id;
 }
 
-/** "Quick start": an empty user plan for today plus its session; exercises are added while training. */
+/**
+ * "Quick start": an empty user plan for `date` plus its session; exercises are added while training.
+ * For a past date (logging an earlier workout), pass `startedAt` so history orders it on that day.
+ */
 export async function startQuickSession(
   db: Db,
   userId: string,
   today: string,
   title = "トレーニング",
   workoutType: WorkoutType = "other",
+  startedAt?: string,
 ): Promise<string> {
   const { planId } = await createPlan(db, userId, {
     date: today,
@@ -66,7 +71,7 @@ export async function startQuickSession(
     source: "app",
     exercises: [],
   });
-  return startSessionForPlan(db, userId, planId, today);
+  return startSessionForPlan(db, userId, planId, today, startedAt);
 }
 
 export type SessionDetail = { session: SessionRow; plan: Plan | null; sets: SetRow[] };
@@ -200,4 +205,91 @@ export async function deleteSet(db: Db, userId: string, setId: string): Promise<
 
 export function countWorkingSets(sets: SetRow[]): number {
   return workingSets(sets).length;
+}
+
+export type LoggedSetInput = {
+  exercise_id: string;
+  set_number: number;
+  weight: number | null;
+  reps: number | null;
+  distance: number | null;
+  time_seconds: number | null;
+  rpe: number | null;
+  is_warmup: boolean;
+};
+
+export type LoggedSessionInput = {
+  date: string;
+  title: string;
+  workout_type: WorkoutType;
+  started_at: string;
+  finished_at: string;
+  session_rpe: number | null;
+  notes: string | null;
+  sets: LoggedSetInput[];
+};
+
+/**
+ * Saves an already-finished workout in one go (e.g. a past session the athlete
+ * tells the coach about). Sessions logged this way have no plan. A second log
+ * with the same date and title is refused unless `replaceExisting`, so a
+ * retried request cannot double the history.
+ */
+export async function logCompletedSession(
+  db: Db,
+  userId: string,
+  input: LoggedSessionInput,
+  opts: { replaceExisting?: boolean } = {},
+): Promise<{ session: SessionRow; replaced: number }> {
+  const existing = must(
+    await db
+      .from("workout_sessions")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("date", input.date)
+      .eq("title", input.title)
+      .is("workout_plan_id", null)
+      .eq("status", "completed"),
+    "find logged session",
+  );
+  if (existing.length && !opts.replaceExisting) {
+    throw new DataError(
+      `A workout titled "${input.title}" is already logged on ${input.date} (id ${existing[0].id}). Send replace_existing: true to overwrite it.`,
+      409,
+    );
+  }
+  if (existing.length) {
+    must(await db.from("workout_sessions").delete().eq("user_id", userId).in("id", existing.map((e) => e.id)).select("id"), "replace logged session");
+  }
+
+  const session = must(
+    await db
+      .from("workout_sessions")
+      .insert({
+        user_id: userId,
+        date: input.date,
+        title: input.title,
+        workout_type: input.workout_type,
+        status: "completed",
+        started_at: input.started_at,
+        finished_at: input.finished_at,
+        session_rpe: input.session_rpe,
+        notes: input.notes,
+      })
+      .select("*")
+      .single(),
+    "log session",
+  );
+
+  // Space the sets 30 s apart inside the session so their order is kept.
+  const start = Date.parse(input.started_at);
+  const res = await db
+    .from("workout_sets")
+    .insert(input.sets.map((s, i) => ({ ...s, user_id: userId, session_id: session.id, completed_at: new Date(start + (i + 1) * 30_000).toISOString() })))
+    .select("id");
+  if (res.error) {
+    await db.from("workout_sessions").delete().eq("user_id", userId).eq("id", session.id);
+    must(res, "log sets");
+  }
+  return { session, replaced: existing.length };
 }

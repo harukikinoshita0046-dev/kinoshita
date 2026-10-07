@@ -143,6 +143,71 @@ export function buildOpenApi(serverUrl: string) {
           parameters: [dateParam("from", "YYYY-MM-DD"), dateParam("to", "YYYY-MM-DD"), intQuery("limit", "1-60, default 20")],
           responses: { "200": json(obj), ...errors },
         },
+        post: {
+          operationId: "logPastWorkout",
+          summary: "Save a finished workout with its sets, e.g. a past session the athlete reports",
+          description:
+            "Use when the athlete tells you about a workout that was not logged in the app (\"10/3 ベンチ 80kg×8,8,7\"). It appears in history, PBs, progression and training load. Each exercise takes either `sets` as a list of sets, or `sets` as a count plus shared reps/weight. Duration defaults to an estimate from the number of sets. Logging the same date + title twice returns 409 unless replace_existing is true.",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["date", "exercises"],
+                  properties: {
+                    date: { type: "string", format: "date", description: "Day of the workout (not in the future)." },
+                    title: { type: "string", description: 'e.g. "HYROX Upper". Defaults from workout_type.' },
+                    workout_type: { type: "string", enum: ["upper", "lower", "full_body", "hyrox", "conditioning", "recovery", "other"] },
+                    start_time: { type: "string", description: 'Local time "18:30" (default 18:00).' },
+                    duration_min: { type: "integer", minimum: 1, maximum: 600 },
+                    session_rpe: { type: "number", minimum: 1, maximum: 10, description: "How hard the whole session was." },
+                    notes: { type: "string", maxLength: 2000 },
+                    replace_existing: { type: "boolean", description: "Overwrite a workout already logged with the same date and title." },
+                    exercises: {
+                      type: "array",
+                      minItems: 1,
+                      maxItems: 30,
+                      items: {
+                        type: "object",
+                        required: ["exercise_id", "sets"],
+                        properties: {
+                          exercise_id: { type: "string", description: "Id from listExercises (a name also works)." },
+                          sets: {
+                            description: "List of sets, or a number of identical sets (then give reps/weight below).",
+                            oneOf: [
+                              {
+                                type: "array",
+                                items: {
+                                  type: "object",
+                                  properties: {
+                                    weight: { type: "number", description: "kg (added load for bodyweight)" },
+                                    reps: { type: "integer" },
+                                    distance: { type: "number", description: "meters" },
+                                    time: { type: "string", description: 'seconds or "m:ss"' },
+                                    rpe: { type: "number", minimum: 1, maximum: 10 },
+                                    warmup: { type: "boolean" },
+                                  },
+                                },
+                              },
+                              { type: "integer", minimum: 1, maximum: 50 },
+                            ],
+                          },
+                          reps: { type: "integer", description: "Shared reps when sets is a count." },
+                          weight: { type: "number", description: "Shared kg when sets is a count (or a default for listed sets)." },
+                          distance: { type: "number", description: "Shared meters." },
+                          time: { type: "string", description: 'Shared seconds or "m:ss".' },
+                          rpe: { type: "number", minimum: 1, maximum: 10 },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          responses: { "201": json(obj, "Saved"), "409": json(errorRef, "Already logged (send replace_existing: true)"), "422": json(errorRef, "Unknown exercise id"), ...errors },
+        },
       },
       "/api/coach/runs": {
         get: {

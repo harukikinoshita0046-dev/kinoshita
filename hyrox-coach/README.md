@@ -46,6 +46,7 @@ DATA ──▶ ANALYSIS ──▶ PROGRAM ──▶ TRAIN ──▶ DATA
 | Workout Logger | 大きな [−]/[＋] ステッパー（長押しで連続、数値タップで直接入力も可）、RPE タップ（6〜10 と .5）、✓ COMPLETE SET、Target / Previous / PB 表示、前回値・Target の自動入力、種目追加・入替、セット編集・削除、オフライン時は端末に保存して自動再送、画面スリープ防止 |
 | Rest Timer | セット完了で自動開始（プラン or Exercise Master の秒数）、大きな残り時間、−15s / +15s / SKIP、終了時ビープ・振動、リロードしても継続 |
 | Workout History | 週ごとのタイムライン（ワークアウト・ラン・HYROX）、詳細（Target vs 実績、PBバッジ、sRPE負荷）、削除 |
+| 過去のトレーニング | HISTORY →「過去の記録」で日付・開始時刻を選び、いつもの記録画面で入力（レストタイマーなし、終了時に時間を入力）。ChatGPT に「10/3 ベンチ 80kg×8,8,7」と送っても保存できる |
 | Body Weight | 朝のチェックインで体重・睡眠・HRV・安静時心拍・主観（筋肉痛 / 疲労 / やる気 1〜5）を入力。7日平均・週変化・月変化・減量ペース・目標到達予測・グラフ |
 | Running Log | ランタイプ8種、距離・時間・ペース・心拍・ケイデンス・RPE・HRゾーン・スプリット。プランからのインターバル実行画面（LAP・自動レスト・目標ペース判定） |
 | HYROX Log | 8 Station の PB / Latest / Trend、相対的な弱点、ゴール差・必要ランペース、16セグメントのシミュレーションモード（Roxzone 計測・PB比較・Undo）、レース結果の手入力 |
@@ -261,7 +262,7 @@ Vercel Functions のリージョンを Supabase と同じ東京（`hnd1`）に�
 | GET | `/api/coach/exercises/{id}/history` | 種目ごとの直近セッション、PB、e1RM、Volume、平均RPE、漸進性ヒント |
 | GET / POST | `/api/coach/workouts` | プラン一覧 / 作成（`replace_existing`, `idempotency_key`） |
 | GET / PUT / PATCH / DELETE | `/api/coach/workouts/{id}` | 詳細（実績付き）/ 置換 / スキップ・キャンセル等 / キャンセル |
-| GET | `/api/coach/sessions` | 実績（全セットとターゲット比較）—「今日の結果どうだった？」 |
+| GET / POST | `/api/coach/sessions` | 実績（全セットとターゲット比較）—「今日の結果どうだった？」/ 過去のトレーニングを記録（`logPastWorkout`。同じ日付+タイトルは `replace_existing` がない限り409） |
 | GET / POST | `/api/coach/runs` | ラン一覧 / 記録 |
 | GET / POST | `/api/coach/hyrox` | HYROX 分析（弱点・ゴール差）/ 結果記録 |
 | GET / POST | `/api/coach/body` | 体重トレンド / 記録 |

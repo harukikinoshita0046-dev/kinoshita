@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState, useTransition } from "react";
 import { discardWorkout, finishWorkout } from "@/app/(focus)/workout/[sessionId]/actions";
 import { NumberRow } from "@/components/Pickers";
+import { Stepper } from "@/components/Stepper";
 import { QueueSync } from "@/components/QueueSync";
 import { Sheet } from "@/components/Sheet";
 import { buttonClass, cn } from "@/components/ui";
 import { addExerciseToPlan, swapPlanExercise } from "@/lib/data/plans";
 import { getExerciseHistories } from "@/lib/data/stats";
+import { formatDayLabel } from "@/lib/domain/dates";
 import { formatDuration, formatNumber } from "@/lib/domain/format";
 import { formatPlanTarget } from "@/lib/domain/plan-format";
 import { prefillSetValues } from "@/lib/domain/prefill";
@@ -25,7 +27,9 @@ import { isDraftValid, SetFields, type Draft } from "./SetFields";
 
 type Props = {
   userId: string;
-  session: { id: string; title: string; started_at: string; workout_plan_id: string | null };
+  session: { id: string; title: string; date: string; started_at: string; workout_plan_id: string | null };
+  /** The athlete's today; a session dated earlier is a past workout being entered after the fact. */
+  today: string;
   initialSlots: LoggerSlot[];
   initialSets: LoggedSet[];
   catalog: LoggerExercise[];
@@ -80,7 +84,8 @@ function toSetLike(s: LoggedSet) {
   return { set_number: s.set_number, weight: s.weight, reps: s.reps, distance: s.distance, time_seconds: s.time_seconds, rpe: s.rpe };
 }
 
-export function WorkoutLogger({ userId, session, initialSlots, initialSets, catalog }: Props) {
+export function WorkoutLogger({ userId, session, today, initialSlots, initialSets, catalog }: Props) {
+  const backfill = session.date < today;
   const db = useMemo(() => createClient(), []);
   const router = useRouter();
   const [slots, setSlots] = useState(initialSlots);
@@ -92,10 +97,11 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
   const [finishOpen, setFinishOpen] = useState(false);
   const [sessionRpe, setSessionRpe] = useState<number | null>(null);
   const [notes, setNotes] = useState("");
+  const [durationMin, setDurationMin] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const { prime, alert } = useAlert();
-  useWakeLock();
+  useWakeLock(!backfill);
 
   const setsFor = useCallback(
     (slotId: string) => sets.filter((s) => s.plan_exercise_id === slotId).sort((a, b) => a.set_number - b.set_number),
@@ -174,7 +180,8 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
       distance: draft.distance,
       time_seconds: draft.time_seconds,
       rpe: draft.rpe,
-      completed_at: new Date().toISOString(),
+      // Past workouts: place the set inside that session (1 min apart) so history and "previous" stay in order.
+      completed_at: backfill ? new Date(Date.parse(session.started_at) + (sets.length + 1) * 60_000).toISOString() : new Date().toISOString(),
       sync: "saving",
     };
     const allSets = [...sets, newSet];
@@ -185,7 +192,7 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
       return next;
     });
     const restSeconds = slot.target.rest ?? slot.exercise.rest;
-    if (restSeconds > 0) setRest({ endsAt: Date.now() + restSeconds * 1000, total: restSeconds });
+    if (restSeconds > 0 && !backfill) setRest({ endsAt: Date.now() + restSeconds * 1000, total: restSeconds });
     if (slot.target.sets && slotSets.length + 1 >= slot.target.sets) {
       const next = nextIncompleteAfter(activeIndex, allSets);
       if (next) setActiveId(next.planExerciseId);
@@ -281,7 +288,7 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
         localStorage.removeItem(`hx:active:${session.id}`);
         localStorage.removeItem(`hx:rest:${session.id}`);
       } catch {}
-      await finishWorkout(session.id, { sessionRpe, notes: notes || null });
+      await finishWorkout(session.id, { sessionRpe, notes: notes || null, durationMin: backfill ? (durationMin ?? estimatedMin) : null });
     });
   };
 
@@ -300,6 +307,7 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
   })();
 
   const queuedCount = sets.filter((s) => s.sync === "queued").length;
+  const estimatedMin = Math.min(120, Math.max(20, 10 + sets.length * 3));
   const extra = slot?.target.sets != null && slotSets.length >= slot.target.sets;
 
   return (
@@ -312,7 +320,7 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
         <div className="min-w-0 flex-1 text-center">
           <p className="truncate text-sm font-bold">{session.title}</p>
           <p className="text-xs text-muted">
-            <Elapsed since={session.started_at} /> ·{" "}
+            {backfill ? <span className="font-semibold text-accent">{formatDayLabel(session.date)}の記録</span> : <Elapsed since={session.started_at} />} ·{" "}
             <span className="num">
               {totalDone}/{totalTarget || "–"}
             </span>{" "}
@@ -548,6 +556,13 @@ export function WorkoutLogger({ userId, session, initialSlots, initialSets, cata
       {/* Finish */}
       <Sheet open={finishOpen} onClose={() => setFinishOpen(false)} title="トレーニングを終了">
         <div className="space-y-4 pb-4">
+          {backfill ? (
+            <div data-testid="backfill-duration">
+              <p className="label mb-2">トレーニング時間（分）</p>
+              <Stepper label="トレーニング時間" value={durationMin ?? estimatedMin} onChange={(v) => setDurationMin(Math.round(v))} step={5} min={5} max={600} unit="分" size="md" inputMode="numeric" />
+              <p className="mt-1 text-xs text-faint">{formatDayLabel(session.date)}の記録として保存します。負荷の計算に使います。</p>
+            </div>
+          ) : null}
           <div>
             <p className="label mb-2">セッションRPE（全体のきつさ）</p>
             <NumberRow values={[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]} value={sessionRpe} onChange={setSessionRpe} testId="session-rpe" />

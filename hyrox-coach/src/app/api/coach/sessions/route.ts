@@ -1,7 +1,9 @@
 import { coachRoute } from "@/lib/coach/api";
+import { logSessionBody, toLoggedSession } from "@/lib/coach/schemas";
+import { profileTimezone } from "@/lib/data/profile";
 import { dateRange, intParam } from "@/lib/coach/dto";
 import { indexExercises, listExercises } from "@/lib/data/exercises";
-import { listSessions } from "@/lib/data/sessions";
+import { logCompletedSession, listSessions } from "@/lib/data/sessions";
 import { fetchAll, must } from "@/lib/data/util";
 import { formatPlanTarget } from "@/lib/domain/plan-format";
 import { summarizeSets } from "@/lib/domain/strength";
@@ -66,4 +68,39 @@ export const GET = coachRoute("read", async ({ db, userId, today, req }) => {
       };
     }),
   };
+});
+
+/**
+ * Logs a finished workout with its sets, usually a past one the athlete reports
+ * ("10/3 ベンチ 80kg×8,8,7"). It shows up in history, PBs and training load.
+ */
+export const POST = coachRoute("write", async ({ db, userId, today, profile, body }) => {
+  const parsed = logSessionBody.parse(body ?? {});
+  const exercises = await listExercises(db, userId, { includeInactive: true });
+  const input = toLoggedSession(parsed, exercises, today, profileTimezone(profile));
+  const { session, replaced } = await logCompletedSession(db, userId, input, { replaceExisting: parsed.replace_existing });
+  const byId = indexExercises(exercises);
+  const perExercise = new Map<string, typeof input.sets>();
+  for (const s of input.sets) perExercise.set(s.exercise_id, [...(perExercise.get(s.exercise_id) ?? []), s]);
+  return Response.json(
+    {
+      created: true,
+      replaced,
+      session: {
+        id: session.id,
+        date: session.date,
+        title: session.title,
+        workout_type: session.workout_type,
+        duration_min: session.duration_seconds ? Math.round(session.duration_seconds / 60) : null,
+        session_rpe: session.session_rpe,
+        total_sets: input.sets.length,
+        exercises: [...perExercise.entries()].map(([id, list]) => ({
+          exercise_id: id,
+          name: byId.get(id)?.name ?? id,
+          sets: summarizeSets(list, byId.get(id)?.unit_type ?? "weight_reps"),
+        })),
+      },
+    },
+    { status: 201 },
+  );
 });

@@ -4,6 +4,7 @@ import { WorkoutLogger } from "@/components/logger/WorkoutLogger";
 import { requireUser } from "@/lib/auth";
 import { indexExercises, listExercises } from "@/lib/data/exercises";
 import { getSessionDetail } from "@/lib/data/sessions";
+import { getProfile, profileToday } from "@/lib/data/profile";
 import { getExerciseHistories } from "@/lib/data/stats";
 import { isUuid } from "@/lib/data/util";
 import { buildSlot, fallbackExercise, toLoggerExercise, type LoggedSet } from "@/lib/logger";
@@ -19,7 +20,7 @@ export default async function WorkoutPage({ params }: PageProps<"/workout/[sessi
   if (!detail) notFound();
   if (detail.session.status !== "in_progress") redirect(`/history/${sessionId}`);
 
-  const exercises = await listExercises(supabase, userId);
+  const [exercises, profile] = await Promise.all([listExercises(supabase, userId), getProfile(supabase, userId)]);
   const byId = indexExercises(exercises);
   const planExercises = detail.plan?.exercises ?? [];
   const histories = await getExerciseHistories(
@@ -54,9 +55,11 @@ export default async function WorkoutPage({ params }: PageProps<"/workout/[sessi
       session={{
         id: detail.session.id,
         title: detail.session.title,
+        date: detail.session.date,
         started_at: detail.session.started_at,
         workout_plan_id: detail.session.workout_plan_id,
       }}
+      today={profileToday(profile)}
       initialSlots={slots}
       initialSets={sets}
       catalog={exercises.filter((e) => !e.hidden).map(toLoggerExercise)}
