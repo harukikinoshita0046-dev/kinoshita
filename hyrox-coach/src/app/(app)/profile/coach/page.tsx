@@ -53,7 +53,28 @@ export default async function CoachApiPage() {
         <code className="text-text">POST /api/coach/workouts</code> でメニューを書き込みます。メニューはすぐに TODAY に表示されます。
       </p>
 
-      <SectionTitle>エンドポイント</SectionTitle>
+      <SectionTitle>ChatGPT プラグイン（おすすめ）</SectionTitle>
+      <Card className="space-y-3 text-sm" data-testid="plugin-setup">
+        <div className="flex items-center justify-between gap-2">
+          <span className="min-w-0">
+            <span className="label block">MCP サーバーの URL</span>
+            <code className="block break-all text-xs">{base}/api/mcp</code>
+          </span>
+          <CopyButton text={`${base}/api/mcp`} />
+        </div>
+        <ol className="list-decimal space-y-1.5 pl-5 leading-relaxed">
+          <li>ChatGPT の設定 → セキュリティとログイン → 開発者モードをオンにする。</li>
+          <li>プラグイン画面の「＋」→「カスタム MCP サーバーを追加」。</li>
+          <li>名前「HYROX Coach」、URL に上の MCP サーバーの URL、認証は「OAuth」。</li>
+          <li>このアプリのログイン画面が開くので、ログインして「許可する」。</li>
+          <li>「プラグインとして作成」→ チャットで「今日トレーニングする」。</li>
+        </ol>
+        <p className="text-xs leading-relaxed text-faint">
+          トークンの入力は不要です。連携すると下の一覧に「ChatGPT プラグイン」が追加され、無効化すると連携が止まります。カスタム GPT（下の設定）は 2026年12月11日で終了予定です。
+        </p>
+      </Card>
+
+      <SectionTitle>エンドポイント（カスタム GPT 用）</SectionTitle>
       <Card className="space-y-2 text-sm">
         <div className="flex items-center justify-between gap-2">
           <span className="min-w-0">
@@ -75,7 +96,7 @@ export default async function CoachApiPage() {
         ) : null}
       </Card>
 
-      <SectionTitle>ChatGPT の設定</SectionTitle>
+      <SectionTitle>カスタム GPT の設定</SectionTitle>
       <Card>
         <ol className="list-decimal space-y-1.5 pl-5 text-sm leading-relaxed">
           <li>下の「トークンを発行」で read + write のトークンを作り、コピーします。</li>

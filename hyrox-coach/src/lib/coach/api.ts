@@ -67,6 +67,13 @@ async function verifyToken(db: Db, token: string): Promise<Verified | null> {
   return { tokenId: data.id, userId: data.user_id, scopes: data.scopes as Scope[] };
 }
 
+/** Checks a coach token without serving a request (used by the MCP endpoint before it dispatches tools). */
+export async function authenticateCoachToken(token: string | null): Promise<{ userId: string; scopes: Scope[] } | null> {
+  if (!token) return null;
+  const v = await verifyToken(createAdminClient(), token);
+  return v ? { userId: v.userId, scopes: v.scopes } : null;
+}
+
 async function countSince(db: Db, column: "token_id" | "ip", value: string, sinceMs: number, onlyFailures = false) {
   let q = db
     .from("api_request_logs")

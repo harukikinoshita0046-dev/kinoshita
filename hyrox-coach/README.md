@@ -294,7 +294,24 @@ curl -X POST https://<app>/api/coach/workouts \
 
 `reps: "6-8"`、`pace: "4:20-4:30"`、`rest: "1:30"`、`"Wall Balls"` のような書き方も受け付けます（正規化して保存）。
 
-### ChatGPT との接続（GPT Actions）
+### ChatGPT プラグインとの接続（MCP + OAuth・おすすめ）
+
+カスタム GPT は 2026年12月11日に終了し、プラグインへ移行します（アクションは引き継がれません）。プラグインからは MCP サーバー `https://<app>/api/mcp` で接続します。
+
+| エンドポイント | 内容 |
+|---|---|
+| `POST /api/mcp` | MCP（Streamable HTTP、ステートレス JSON）。ツールは Coach API の OpenAPI から自動生成（`ping` 以外の全オペレーション）。ツール実行は既存の `/api/coach/*` ハンドラーをそのまま呼ぶので、検証・レート制限・ログも共通 |
+| `GET /.well-known/oauth-protected-resource[/api/mcp]` | RFC 9728。未認証の MCP 呼び出しは `401` + `WWW-Authenticate: Bearer resource_metadata=…` |
+| `GET /.well-known/oauth-authorization-server` | RFC 8414 |
+| `POST /api/oauth/register` | 動的クライアント登録。リダイレクト先は chatgpt.com / openai.com のみ |
+| `/oauth/authorize` | ログイン → 同意画面（許可 / キャンセル）。PKCE（S256）必須 |
+| `POST /api/oauth/token` | 認可コード + PKCE → アクセストークン（通常の Coach API トークン `hxc_…`、名前「ChatGPT プラグイン」。PROFILE → AIコーチ API で無効化可能） |
+
+クライアント ID と認可コード（5分）は HMAC 署名付きのステートレス値で、DB マイグレーションは不要です。署名鍵は `OAUTH_SIGNING_SECRET`（未設定なら `SUPABASE_SECRET_KEY` から導出）。
+
+設定手順: ChatGPT の設定で開発者モードをオン → プラグイン画面の「＋」→ カスタム MCP サーバーを追加 → URL に `https://<app>/api/mcp`、認証は OAuth → アプリでログインして「許可する」→ プラグインとして作成。
+
+### ChatGPT との接続（GPT Actions・2026年12月11日まで）
 
 1. アプリを HTTPS で公開し、`NEXT_PUBLIC_APP_URL` を設定。
 2. Profile → AI Coach API でトークン（read + write）を作成。
