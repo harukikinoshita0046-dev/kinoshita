@@ -102,6 +102,33 @@ describe("Logging past workouts through the coach API", () => {
     expect(list.json.sessions).toEqual([]);
   });
 
+  it("lets the coach add a missing exercise and then log it by its Japanese name", async () => {
+    const created = await api("/api/coach/exercises", {
+      token: tokenA,
+      method: "POST",
+      body: { name: "Bent Over Row", category: "pull", unit_type: "weight_reps", aliases: ["ベントオーバーロウ", "barbell row"] },
+    });
+    expect(created.status).toBe(201);
+    const id = created.json.exercise.id as string;
+    expect(id).toMatch(/^custom_bent_over_row_/);
+
+    const again = await api("/api/coach/exercises", { token: tokenA, method: "POST", body: { name: "barbell row", category: "pull", unit_type: "weight_reps" } });
+    expect(again.status).toBe(200);
+    expect(again.json).toMatchObject({ created: false, exercise: { id } });
+
+    const logged = await api("/api/coach/sessions", {
+      token: tokenA,
+      method: "POST",
+      body: { date: addDays(today, -6), title: "Rows", exercises: [{ exercise_id: "ベントオーバーロウ", sets: 4, reps: 10, weight: 50 }] },
+    });
+    expect(logged.status).toBe(201);
+    expect(logged.json.session.exercises).toEqual([{ exercise_id: id, name: "Bent Over Row", sets: "50×10, 50×10, 50×10, 50×10" }]);
+
+    // Custom exercises belong to their creator only.
+    const list = await api("/api/coach/exercises", { token: tokenB });
+    expect(list.json.exercises.some((e: { id: string }) => e.id === id)).toBe(false);
+  });
+
   it("needs the write scope", async () => {
     const readOnly = (await createToken(a.id, { scopes: ["read"] })).token;
     const res = await api("/api/coach/sessions", { token: readOnly, method: "POST", body: { ...body, title: "ro" } });

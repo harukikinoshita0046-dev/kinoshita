@@ -1,5 +1,7 @@
+import { z } from "zod";
 import { coachRoute } from "@/lib/coach/api";
-import { listExercises } from "@/lib/data/exercises";
+import { createCustomExercise, listExercises } from "@/lib/data/exercises";
+import { resolveExercise, UNIT_TYPES } from "@/lib/domain/exercise";
 
 /** Valid exercise ids for workout plans (built-in + the athlete's custom exercises). */
 export const GET = coachRoute("read", async ({ db, userId }) => {
@@ -28,4 +30,33 @@ export const GET = coachRoute("read", async ({ db, userId }) => {
       time: "target_time (s)",
     },
   };
+});
+
+const createBody = z.object({
+  name: z.string().trim().min(1).max(80),
+  category: z.enum(["push", "pull", "legs", "hinge", "core", "carry", "hyrox_station", "cardio", "run", "other"]),
+  unit_type: z.enum(UNIT_TYPES),
+  aliases: z.array(z.string().trim().min(1).max(80)).max(10).optional(),
+  weight_increment: z.number().positive().max(50).optional(),
+  default_rest_seconds: z.number().int().min(0).max(1800).optional(),
+  default_distance_m: z.number().positive().max(100000).nullish(),
+});
+
+/**
+ * Adds a custom exercise when the athlete trains something not in the list
+ * (e.g. a bent-over row). If the name or an alias already matches an
+ * exercise, that one is returned instead of creating a duplicate.
+ */
+export const POST = coachRoute("write", async ({ db, userId, body }) => {
+  const input = createBody.parse(body ?? {});
+  const existing = await listExercises(db, userId, { includeInactive: true });
+  const match = [input.name, ...(input.aliases ?? [])].map((q) => resolveExercise(existing, q)).find(Boolean);
+  if (match) {
+    return { created: false, exercise: { id: match.id, name: match.name, unit_type: match.unit_type, custom: match.is_custom }, message: "An exercise with this name already exists; use its id." };
+  }
+  const id = await createCustomExercise(db, userId, input);
+  return Response.json(
+    { created: true, exercise: { id, name: input.name, category: input.category, unit_type: input.unit_type, aliases: input.aliases ?? [], custom: true } },
+    { status: 201 },
+  );
 });

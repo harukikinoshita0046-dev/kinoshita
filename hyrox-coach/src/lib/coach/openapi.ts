@@ -66,6 +66,37 @@ export function buildOpenApi(serverUrl: string) {
       },
       "/api/coach/exercises": {
         get: { operationId: "listExercises", summary: "Valid exercise ids and how each is logged", responses: { "200": json(obj), ...errors } },
+        post: {
+          operationId: "createExercise",
+          summary: "Add a custom exercise that is not in the list yet",
+          description:
+            "Use when the athlete did an exercise that listExercises does not have (an unknown_exercise error from logPastWorkout or createWorkoutPlan names it). Give an English name, Japanese and other names as aliases, the right category and unit_type. If the name or an alias already matches an exercise, that exercise is returned (created: false) instead of a duplicate.",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["name", "category", "unit_type"],
+                  properties: {
+                    name: { type: "string", description: 'English name, e.g. "Bent Over Row"' },
+                    category: { type: "string", enum: ["push", "pull", "legs", "hinge", "core", "carry", "hyrox_station", "cardio", "run", "other"] },
+                    unit_type: {
+                      type: "string",
+                      enum: ["weight_reps", "bodyweight_reps", "reps", "distance_time", "weight_distance", "time"],
+                      description: "How a set is logged: weight_reps for barbell/dumbbell/machine lifts.",
+                    },
+                    aliases: { type: "array", items: { type: "string" }, description: 'Other names, e.g. ["ベントオーバーロウ", "barbell row"]' },
+                    weight_increment: { type: "number", description: "kg per +/− step (default 2.5)" },
+                    default_rest_seconds: { type: "integer", description: "default 90" },
+                    default_distance_m: { type: "number", description: "For distance exercises" },
+                  },
+                },
+              },
+            },
+          },
+          responses: { "201": json(obj, "Created"), "200": json(obj, "Already exists"), ...errors },
+        },
       },
       "/api/coach/exercises/{id}/history": {
         get: {

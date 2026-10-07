@@ -51,6 +51,8 @@ export type CustomExerciseInput = {
   default_rest_seconds?: number;
   default_distance_m?: number | null;
   hyrox_relevance?: number;
+  /** Other names the athlete or the coach may use (e.g. ベントオーバーロウ). */
+  aliases?: string[];
 };
 
 export async function createCustomExercise(db: Db, userId: string, input: CustomExerciseInput): Promise<string> {
@@ -67,6 +69,7 @@ export async function createCustomExercise(db: Db, userId: string, input: Custom
     default_rest_seconds: input.default_rest_seconds ?? 90,
     default_distance_m: input.default_distance_m ?? null,
     hyrox_relevance: input.hyrox_relevance ?? 0,
+    aliases: [...new Set((input.aliases ?? []).map((a) => a.trim()).filter(Boolean))].slice(0, 10),
   });
   if (res.error?.code === "23505") throw new DataError(`「${input.name}」という名前の種目はすでにあります。`, 409);
   must(res, "create exercise");
