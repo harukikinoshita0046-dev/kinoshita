@@ -30,8 +30,9 @@ describe("MCP tools from the coach API", () => {
     expect(names).toContain("getCoachContext");
     expect(names).toContain("createWorkoutPlan");
     expect(names).toContain("logPastWorkout");
+    expect(names).toContain("createExercise");
     expect(names).not.toContain("ping");
-    expect(names.length).toBe(21);
+    expect(names.length).toBe(22);
   });
 
   it("flattens path, query and body fields into one object schema", () => {
