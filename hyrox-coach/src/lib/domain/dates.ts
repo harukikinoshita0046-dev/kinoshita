@@ -80,6 +80,37 @@ export function relativeDayLabel(date: IsoDate, today: IsoDate): string {
   return formatShortDate(date, Number(today.slice(0, 4)));
 }
 
+/** Milliseconds the timezone is ahead of UTC at an instant (Tokyo: +9 h). */
+function timeZoneOffsetMs(instant: number, timeZone: string): number {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      hourCycle: "h23",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    })
+      .formatToParts(new Date(instant))
+      .map((p) => [p.type, p.value]),
+  );
+  const asUtc = Date.UTC(+parts.year, +parts.month - 1, +parts.day, +parts.hour, +parts.minute, +parts.second);
+  return asUtc - Math.floor(instant / 1000) * 1000;
+}
+
+/** A wall-clock time on a calendar date in a timezone, as an ISO instant. ("2026-10-03", "18:30", Tokyo) -> "2026-10-03T09:30:00.000Z" */
+export function zonedTimeToIso(date: IsoDate, time: string, timeZone: string): string {
+  const tz = isValidTimeZone(timeZone) ? timeZone : DEFAULT_TIMEZONE;
+  const [h, m] = time.split(":").map(Number);
+  const [y, mo, d] = date.split("-").map(Number);
+  const wall = Date.UTC(y, mo - 1, d, h, m);
+  let instant = wall;
+  for (let i = 0; i < 2; i++) instant = wall - timeZoneOffsetMs(instant, tz);
+  return new Date(instant).toISOString();
+}
+
 /** Local clock time "07:42" of an instant in a timezone. */
 export function formatClockTime(instant: string | Date, timeZone: string): string {
   const d = typeof instant === "string" ? new Date(instant) : instant;

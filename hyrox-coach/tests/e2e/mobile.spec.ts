@@ -13,6 +13,7 @@ const PAGES = [
   "/body",
   "/run/new",
   "/hyrox/new",
+  "/history/new",
   "/hyrox/simulation",
   "/profile/coach",
   "/profile/exercises",

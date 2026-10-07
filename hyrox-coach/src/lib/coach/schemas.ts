@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { PlanExerciseInput, PlanInput } from "@/lib/data/plans";
-import { isIsoDate } from "@/lib/domain/dates";
+import type { LoggedSessionInput, LoggedSetInput } from "@/lib/data/sessions";
+import { addDays, isIsoDate, zonedTimeToIso } from "@/lib/domain/dates";
 import { resolveExercise, type Exercise } from "@/lib/domain/exercise";
 import { parseClock } from "@/lib/domain/format";
 import { isWorkoutType, normalizeWorkoutType, WORKOUT_TYPE_LABELS, type WorkoutType } from "@/lib/domain/workout-types";
@@ -187,5 +188,134 @@ export function toPlanInput(body: z.infer<typeof createPlanBody>, exercises: Exe
     source: "coach_api",
     idempotency_key: body.idempotency_key ?? null,
     exercises: normalizeExercises(body.exercises, exercises),
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Logging a finished (usually past) workout: POST /api/coach/sessions
+// ---------------------------------------------------------------------------
+
+const rawSet = z.object({
+  weight: looseNumber,
+  reps: looseNumber,
+  distance: looseNumber,
+  distance_m: looseNumber,
+  time: looseNumber,
+  time_seconds: looseNumber,
+  rpe: looseNumber,
+  warmup: z.boolean().optional(),
+  is_warmup: z.boolean().optional(),
+});
+
+const rawLoggedExercise = z.object({
+  exercise_id: z.string().min(1).max(80).optional(),
+  exercise: z.string().min(1).max(80).optional(),
+  name: z.string().min(1).max(80).optional(),
+  /** Either the actual sets, or a count with the shared reps/weight below ("3 sets of 8 @ 80 kg"). */
+  sets: z.union([z.array(rawSet).min(1).max(50), z.number(), z.string()]),
+  reps: looseNumber,
+  weight: looseNumber,
+  distance: looseNumber,
+  distance_m: looseNumber,
+  time: looseNumber,
+  time_seconds: looseNumber,
+  rpe: looseNumber,
+});
+
+export const logSessionBody = z.object({
+  date: z.string(),
+  title: z.string().trim().min(1).max(120).optional(),
+  workout_type: z.string().min(1).max(40).default("other"),
+  start_time: z
+    .string()
+    .regex(/^([01]?\d|2[0-3]):[0-5]\d$/, 'start_time must look like "18:30"')
+    .optional(),
+  duration_min: z.number().int().min(1).max(600).nullish(),
+  session_rpe: z.number().min(1).max(10).nullish(),
+  notes: z.string().max(2000).nullish(),
+  replace_existing: z.boolean().optional(),
+  exercises: z.array(rawLoggedExercise).min(1).max(30),
+});
+
+/** Rough length of a strength session when the athlete does not say: 10 min + 3 min per set, 20–120 min. */
+export function estimateDurationMin(totalSets: number): number {
+  return Math.min(120, Math.max(20, 10 + totalSets * 3));
+}
+
+export function toLoggedSession(
+  body: z.infer<typeof logSessionBody>,
+  exercises: Exercise[],
+  today: string,
+  timeZone: string,
+): LoggedSessionInput {
+  const issues: Issue[] = [];
+  const unknown: string[] = [];
+
+  if (!isIsoDate(body.date)) throw new ApiError(400, "validation_error", "date must be YYYY-MM-DD.");
+  if (body.date > today) issues.push({ path: "date", message: `must not be in the future (today is ${today})` });
+  if (body.date < addDays(today, -3650)) issues.push({ path: "date", message: "must be within the last 10 years" });
+
+  const sets: LoggedSetInput[] = [];
+  const nextNumber = new Map<string, number>();
+  body.exercises.forEach((e, i) => {
+    const p = `exercises.${i}`;
+    const query = e.exercise_id ?? e.exercise ?? e.name;
+    const ex = query ? resolveExercise(exercises, query) : undefined;
+    if (!query) issues.push({ path: `${p}.exercise_id`, message: "is required" });
+    else if (!ex) unknown.push(query);
+    const id = ex?.id ?? String(query ?? "");
+
+    const shared = { weight: e.weight, reps: e.reps, distance: e.distance_m ?? e.distance, time: e.time_seconds ?? e.time, rpe: e.rpe };
+    let rawSets: Array<z.infer<typeof rawSet>>;
+    if (Array.isArray(e.sets)) {
+      rawSets = e.sets;
+    } else {
+      const n = num(e.sets, `${p}.sets`, issues, { min: 1, max: 50, int: true });
+      rawSets = n ? Array.from({ length: n }, () => ({})) : [];
+    }
+
+    rawSets.forEach((s, k) => {
+      const sp = Array.isArray(e.sets) ? `${p}.sets.${k}` : p;
+      const set: LoggedSetInput = {
+        exercise_id: id,
+        set_number: 0,
+        weight: num(s.weight ?? shared.weight, `${sp}.weight`, issues, { min: 0, max: 500 }),
+        reps: num(s.reps ?? shared.reps, `${sp}.reps`, issues, { min: 0, max: 1000, int: true }),
+        distance: num(s.distance_m ?? s.distance ?? shared.distance, `${sp}.distance`, issues, { min: 0, max: 100000 }),
+        time_seconds: clock(s.time_seconds ?? s.time ?? shared.time, `${sp}.time`, issues, 36000),
+        rpe: num(s.rpe ?? shared.rpe, `${sp}.rpe`, issues, { min: 1, max: 10 }),
+        is_warmup: s.is_warmup ?? s.warmup ?? false,
+      };
+      if (set.reps == null && set.distance == null && set.time_seconds == null) {
+        issues.push({ path: sp, message: "needs reps, distance or time" });
+      }
+      const n = (nextNumber.get(id) ?? 0) + 1;
+      nextNumber.set(id, n);
+      set.set_number = n;
+      sets.push(set);
+    });
+  });
+
+  if (unknown.length) {
+    throw new ApiError(422, "unknown_exercise", `Unknown exercise: ${unknown.join(", ")}. Use an id from GET /api/coach/exercises.`, {
+      unknown,
+      valid_ids: exercises.filter((e) => e.active).map((e) => e.id),
+    });
+  }
+  if (sets.length > 300) issues.push({ path: "exercises", message: "at most 300 sets per workout" });
+  if (issues.length) throw new ApiError(400, "validation_error", "Request validation failed.", issues);
+
+  const workoutType = resolveWorkoutType(body.workout_type);
+  const startedAt = zonedTimeToIso(body.date, body.start_time ?? "18:00", timeZone);
+  const durationMin = body.duration_min ?? estimateDurationMin(sets.filter((s) => !s.is_warmup).length);
+  return {
+    date: body.date,
+    title: body.title ?? (workoutType === "other" ? "トレーニング" : `${WORKOUT_TYPE_LABELS[workoutType]}トレーニング`),
+    workout_type: workoutType,
+    started_at: startedAt,
+    finished_at: new Date(Date.parse(startedAt) + durationMin * 60_000).toISOString(),
+    session_rpe: body.session_rpe ?? null,
+    notes: body.notes?.trim() || null,
+    sets,
   };
 }

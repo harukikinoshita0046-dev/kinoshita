@@ -1,7 +1,7 @@
-import { ChevronRight, Dumbbell, Flame, Footprints } from "lucide-react";
+import { ChevronRight, Dumbbell, Flame, Footprints, Plus } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EmptyState, Page, PageHeader, cn } from "@/components/ui";
+import { ButtonLink, EmptyState, Page, PageHeader, cn } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { listHyroxResults } from "@/lib/data/hyrox";
 import { getProfile, profileToday } from "@/lib/data/profile";
@@ -100,7 +100,14 @@ export default async function HistoryPage({ searchParams }: PageProps<"/history"
 
   return (
     <Page>
-      <PageHeader title="HISTORY" />
+      <PageHeader
+        title="HISTORY"
+        action={
+          <ButtonLink href="/history/new" variant="secondary" size="sm" data-testid="log-past">
+            <Plus className="h-4 w-4" aria-hidden="true" /> 過去の記録
+          </ButtonLink>
+        }
+      />
       <nav className="mb-4 flex gap-1.5" aria-label="種類で絞り込み">
         {FILTERS.map((f) => (
           <Link

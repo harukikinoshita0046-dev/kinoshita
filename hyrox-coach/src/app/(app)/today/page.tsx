@@ -102,6 +102,9 @@ export default async function TodayPage() {
           </SubmitButton>
         </form>
       </div>
+      <Link href="/history/new" className="mt-1 flex min-h-11 items-center justify-center text-xs font-semibold text-muted active:text-text">
+        過去のトレーニングを記録する →
+      </Link>
 
       <SectionTitle>AIインサイト</SectionTitle>
       <InsightsList coach={coachNotes} rules={snap.insights.slice(0, 3)} />
