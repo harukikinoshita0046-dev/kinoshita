@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { InsightsList } from "@/components/InsightsList";
 import { PlanCard } from "@/components/today/PlanCard";
+import { SubmitButton } from "@/components/SubmitButton";
 import { ReadinessCard } from "@/components/today/ReadinessCard";
 import { EmptyState, Page, PageHeader, SectionTitle, cn } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
@@ -74,9 +75,12 @@ export default async function TodayPage() {
         <EmptyState title="まだメニューがありません">
           AIコーチに<span className="font-semibold text-text">「今日トレーニングする」</span>と送ると、ここにメニューが表示されます。
           <form action={startQuickWorkout} className="mt-4">
-            <button className="rounded-xl bg-surface-2 px-4 py-2.5 text-sm font-bold text-text active:bg-surface-3">
+            <SubmitButton
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-surface-2 px-4 text-sm font-bold text-text active:bg-surface-3 disabled:opacity-60"
+              pendingText="準備しています…"
+            >
               メニューなしで始める
-            </button>
+            </SubmitButton>
           </form>
         </EmptyState>
       )}
@@ -93,9 +97,9 @@ export default async function TodayPage() {
           <Flame className="h-5 w-5 text-station" aria-hidden="true" /> HYROX
         </Link>
         <form action={startQuickWorkout} className="contents">
-          <button className={cn(quickClass, "w-full")}>
+          <SubmitButton className={cn(quickClass, "w-full disabled:opacity-60")} pendingText="準備中…">
             <Dumbbell className="h-5 w-5 text-text" aria-hidden="true" /> 筋トレ
-          </button>
+          </SubmitButton>
         </form>
       </div>
 
